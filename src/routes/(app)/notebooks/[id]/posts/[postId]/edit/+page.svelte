@@ -183,7 +183,7 @@
             placeholder="Write in Markdown… Use $math$ for inline and $$math$$ for block math."
           ></textarea>
         {:else}
-          <div class="md-preview prose">
+          <div class="md-preview">
             {#if previewHtml}
               {@html previewHtml}
             {:else}

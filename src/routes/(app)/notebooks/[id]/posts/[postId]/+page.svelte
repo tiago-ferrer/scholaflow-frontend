@@ -97,7 +97,7 @@
     <!-- Left: content -->
     <div class="main-col">
       <div class="card">
-        <div class="md-content prose">
+        <div class="md-content">
           {@html renderedContent}
         </div>
       </div>
