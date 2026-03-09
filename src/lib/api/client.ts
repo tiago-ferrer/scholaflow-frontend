@@ -23,7 +23,13 @@ export function makeApi(fetchFn: typeof fetch = globalThis.fetch) {
       headers.set('Authorization', `Bearer ${auth.token}`)
     }
 
-    const res = await fetchFn(`${BASE_URL}${path}`, { ...init, headers })
+    const url = `${BASE_URL}${path}`
+    console.log('[api]', init.method ?? 'GET', url, {
+      hasAuth: headers.has('Authorization'),
+      contentType: headers.get('Content-Type'),
+      bodyType: init.body?.constructor?.name,
+    })
+    const res = await fetchFn(url, { ...init, headers })
 
     if (res.status === 401) {
       authStore.clear()
@@ -31,8 +37,11 @@ export function makeApi(fetchFn: typeof fetch = globalThis.fetch) {
     }
 
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}))
-      throw new ApiError(res.status, body.error ?? 'UNKNOWN', body.message ?? 'Request failed')
+      const text = await res.text().catch(() => '')
+      console.error('[api] error response', res.status, text)
+      let body: Record<string, unknown> = {}
+      try { body = JSON.parse(text) } catch { /* not json */ }
+      throw new ApiError(res.status, String(body.error ?? 'UNKNOWN'), String(body.message ?? (text || 'Request failed')))
     }
 
     if (res.status === 204) return undefined as T
