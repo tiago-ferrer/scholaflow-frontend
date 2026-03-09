@@ -2,15 +2,31 @@
   import { page } from '$app/stores'
   import { ChevronRight } from 'lucide-svelte'
   import type { Paper } from '$lib/types/paper'
+  import type { Notebook, NotebookPost } from '$lib/types/notebook'
+
+  function truncate(text: string, max = 24): string {
+    return text.length > max ? text.slice(0, max).trimEnd() + '…' : text
+  }
 
   function labelFor(part: string): string {
-    // If this segment looks like a paper ID, try to use paper data from the page
-    const paper = ($page.data as { paper?: Paper }).paper
-    if (paper && part === paper.id) {
-      const firstAuthor = paper.authors[0]?.split(' ').pop() ?? ''
-      const extra = paper.authors.length > 1 ? ' et al.' : ''
-      return `${paper.year} · ${firstAuthor}${extra}`
+    const data = $page.data as { paper?: Paper; notebook?: Notebook; post?: NotebookPost }
+
+    if (data.paper && part === data.paper.id) {
+      const firstAuthor = data.paper.authors[0]?.split(' ').pop() ?? ''
+      const extra = data.paper.authors.length > 1 ? ' et al.' : ''
+      return `${firstAuthor}${extra}, ${data.paper.year}`
     }
+
+    if (data.notebook && part === data.notebook.id) {
+      return truncate(data.notebook.title)
+    }
+
+    if (data.post && part === data.post.id) {
+      return new Date(data.post.created_at).toLocaleDateString('en-US', {
+        month: 'long', day: '2-digit', year: 'numeric',
+      })
+    }
+
     return part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ')
   }
 
