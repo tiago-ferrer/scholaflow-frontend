@@ -3,13 +3,14 @@
   import { ChevronRight } from 'lucide-svelte'
   import type { Paper } from '$lib/types/paper'
   import type { Notebook, NotebookPost } from '$lib/types/notebook'
+  import type { KanbanBoard } from '$lib/types/kanban'
 
   function truncate(text: string, max = 24): string {
     return text.length > max ? text.slice(0, max).trimEnd() + '…' : text
   }
 
   function labelFor(part: string): string {
-    const data = $page.data as { paper?: Paper; notebook?: Notebook; post?: NotebookPost }
+    const data = $page.data as { paper?: Paper; notebook?: Notebook; post?: NotebookPost; board?: KanbanBoard }
 
     if (data.paper && part === data.paper.id) {
       const firstAuthor = data.paper.authors[0]?.split(' ').pop() ?? ''
@@ -19,6 +20,10 @@
 
     if (data.notebook && part === data.notebook.id) {
       return truncate(data.notebook.title)
+    }
+
+    if (data.board && part === data.board.id) {
+      return truncate(data.board.title)
     }
 
     if (data.post && part === data.post.id) {

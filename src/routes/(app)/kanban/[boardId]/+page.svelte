@@ -674,8 +674,8 @@
 
   /* ── Kanban column ─────────────────────────────────────────────────────── */
   .kanban-column {
-    flex-shrink: 0;
-    width: 272px;
+    flex: 1 1 220px;
+    min-width: 220px;
     background: var(--color-surface-1);
     border-radius: 10px;
     display: flex;
@@ -876,8 +876,26 @@
   .settings-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px; border-top: 1px solid var(--color-surface-2); }
 
   @media (max-width: 1019px) {
-    .board-header { flex-direction: column; gap: 10px; }
+    /* Header */
+    .board-header { flex-direction: column; gap: 10px; margin-bottom: 14px; }
     .board-header-right { width: 100%; justify-content: flex-end; }
-    .kanban-column { width: 240px; }
+
+    /* Columns stack vertically, full width, no horizontal scroll */
+    .columns-scroll {
+      flex-direction: column;
+      overflow-x: visible;
+      align-items: stretch;
+      gap: 10px;
+      padding-bottom: 24px;
+    }
+
+    /* Each column is full width and not height-constrained */
+    .kanban-column { width: 100%; max-height: none; }
+
+    /* Let column body expand naturally — page scrolls instead */
+    .col-body { overflow-y: visible; max-height: none; }
+
+    /* SlideOvers full width on mobile */
+    :global(.slide-over) { width: 100% !important; }
   }
 </style>
