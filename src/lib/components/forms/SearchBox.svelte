@@ -39,8 +39,8 @@
     font-size: 0.875rem; color: var(--color-text-primary);
     width: 200px;
   }
-  @media (max-width: 767px) {
-    .search-input { width: 70px; visibility: hidden}
+  @media (max-width: 1024px) {
+    .search-box { display: none; }
   }
   .search-input::placeholder { color: var(--color-text-disabled); }
   .search-input::-webkit-search-cancel-button { cursor: pointer; }

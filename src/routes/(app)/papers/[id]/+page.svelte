@@ -245,7 +245,9 @@
       <div class="card pdf-card">
         <h2 class="card-title">PDF Viewer</h2>
         {#if pdfUrl}
-          <iframe src={pdfUrl} title="PDF Viewer" class="pdf-iframe"></iframe>
+          <div class="pdf-scroll-wrap">
+            <iframe src={pdfUrl} title="PDF Viewer" class="pdf-iframe" scrolling="yes"></iframe>
+          </div>
         {:else}
           <div class="pdf-empty">
             <FileText size={40} />
@@ -313,7 +315,7 @@
     .attach-actions { margin-left: auto; }
 
     /* PDF viewer */
-    .pdf-iframe { height: 70vh; min-height: 280px; }
+    .pdf-scroll-wrap { height: 70vh; min-height: 280px; }
     .right-col.pdf-hidden { display: none; }
   }
 
@@ -345,7 +347,12 @@
   .note-date { font-size: 0.6875rem; color: var(--color-text-disabled); }
 
   .pdf-card { display: flex; flex-direction: column; position: sticky; top: 80px; }
-  .pdf-iframe { width: 100%; height: calc(100vh - 220px); min-height: 400px; border: none; border-radius: 6px; display: block; }
+  .pdf-scroll-wrap {
+    width: 100%; height: calc(100vh - 220px); min-height: 400px;
+    overflow: auto; -webkit-overflow-scrolling: touch;
+    border-radius: 6px;
+  }
+  .pdf-iframe { width: 100%; height: 100%; border: none; display: block; }
   .pdf-empty {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 12px; height: 300px; color: var(--color-text-disabled);
