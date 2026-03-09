@@ -1,13 +1,14 @@
 import type { PageLoad } from './$types'
-import { papersApi } from '$lib/api/papers'
+import { makePapersApi } from '$lib/api/papers'
 import { error } from '@sveltejs/kit'
 import { ApiError } from '$lib/api/client'
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, fetch }) => {
+  const api = makePapersApi(fetch)
   try {
     const [paper, viewers] = await Promise.all([
-      papersApi.get(params.id),
-      papersApi.listViewers(params.id),
+      api.get(params.id),
+      api.listViewers(params.id),
     ])
     return { paper, viewers }
   } catch (e) {

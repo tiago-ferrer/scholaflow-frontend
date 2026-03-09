@@ -1,6 +1,6 @@
 import type { PageLoad } from './$types'
-import { apiKeysApi } from '$lib/api/apikeys'
+import { makeApiKeysApi } from '$lib/api/apikeys'
 
-export const load: PageLoad = async () => {
-  return { apiKeys: await apiKeysApi.list() }
+export const load: PageLoad = async ({ fetch }) => {
+  return { apiKeys: await makeApiKeysApi(fetch).list() }
 }

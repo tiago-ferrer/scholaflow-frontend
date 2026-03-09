@@ -11,7 +11,7 @@
   import FileUpload from '$lib/components/forms/FileUpload.svelte'
   import FormField from '$lib/components/forms/FormField.svelte'
   import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
-  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2 } from 'lucide-svelte'
+  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye } from 'lucide-svelte'
   import type { Attachment } from '$lib/types/paper'
 
   let { data }: { data: PageData } = $props()
@@ -22,11 +22,26 @@
   let savingNote       = $state(false)
   let deleteNoteTarget = $state<string | null>(null)
 
-  let uploadingFile        = $state(false)
-  let deleteAttachTarget   = $state<Attachment | null>(null)
+  let uploadingFile      = $state(false)
+  let deleteAttachTarget = $state<Attachment | null>(null)
+
+  let pdfUrl       = $state<string | null>(null)
+  let loadingPdfId = $state<string | null>(null)
 
   const activeNotes       = $derived((paper.notes ?? []).filter(n => !n.deleted))
   const activeAttachments = $derived(paper.attachments.filter(a => !a.deleted))
+
+  async function viewPdf(attach: Attachment) {
+    loadingPdfId = attach.id
+    try {
+      const url = await papersApi.getDownloadUrl(paper.id, attach.id)
+      pdfUrl = url
+    } catch {
+      toast.error('Failed to load PDF')
+    } finally {
+      loadingPdfId = null
+    }
+  }
 
   async function addNote() {
     if (!newNote.trim()) return
@@ -113,6 +128,7 @@
   </div>
 
   <div class="layout">
+    <!-- Left column: metadata, abstract, notes, attachments -->
     <div class="left-col">
       <div class="card">
         <h2 class="card-title">Metadata</h2>
@@ -159,39 +175,7 @@
         </div>
       {/if}
 
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Attachments</h2>
-          {#if paper.role === 'OWNER'}
-            <FileUpload onfile={uploadFile} loading={uploadingFile} />
-          {/if}
-        </div>
-        {#if activeAttachments.length === 0}
-          <p class="empty-msg">No attachments</p>
-        {:else}
-          <ul class="attach-list">
-            {#each activeAttachments as attach}
-              <li class="attach-item">
-                <FileText size={20} />
-                <div class="attach-info">
-                  <span class="attach-name">{attach.filename}</span>
-                  <span class="attach-size">{formatBytes(attach.size_bytes)}</span>
-                </div>
-                <div class="attach-actions">
-                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
-                  {#if paper.role === 'OWNER'}
-                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
-                  {/if}
-                </div>
-              </li>
-            {/each}
-          </ul>
-        {/if}
-      </div>
-    </div>
-
-    {#if paper.role === 'OWNER'}
-      <div class="right-col">
+      {#if paper.role === 'OWNER'}
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Notes</h2>
@@ -215,8 +199,61 @@
             </ul>
           {/if}
         </div>
+      {/if}
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Attachments</h2>
+          {#if paper.role === 'OWNER'}
+            <FileUpload onfile={uploadFile} loading={uploadingFile} />
+          {/if}
+        </div>
+        {#if activeAttachments.length === 0}
+          <p class="empty-msg">No attachments</p>
+        {:else}
+          <ul class="attach-list">
+            {#each activeAttachments as attach}
+              <li class="attach-item">
+                <FileText size={20} />
+                <div class="attach-info">
+                  <span class="attach-name">{attach.filename}</span>
+                  <span class="attach-size">{formatBytes(attach.size_bytes)}</span>
+                </div>
+                <div class="attach-actions">
+                  <button
+                    class="icon-btn"
+                    onclick={() => viewPdf(attach)}
+                    title="View in viewer"
+                    disabled={loadingPdfId === attach.id}
+                  >
+                    <Eye size={20} />
+                  </button>
+                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
+                  {#if paper.role === 'OWNER'}
+                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
+                  {/if}
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {/if}
       </div>
-    {/if}
+    </div>
+
+    <!-- Right column: PDF viewer -->
+    <div class="right-col">
+      <div class="card pdf-card">
+        <h2 class="card-title">PDF Viewer</h2>
+        {#if pdfUrl}
+          <iframe src={pdfUrl} title="PDF Viewer" class="pdf-iframe"></iframe>
+        {:else}
+          <div class="pdf-empty">
+            <FileText size={40} />
+            <p>Click <Eye size={14} /> on a PDF attachment to view it here</p>
+          </div>
+        {/if}
+      </div>
+    </div>
   </div>
 </div>
 
@@ -256,8 +293,8 @@
   .page-header h1 { margin: 0; font-size: 1.375rem; font-weight: 500; line-height: 1.3; }
   .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-  .layout { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; align-items: start; }
-  @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+  .layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
 
   .card { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -286,6 +323,15 @@
   .note-footer { display: flex; align-items: center; justify-content: space-between; }
   .note-date { font-size: 0.6875rem; color: var(--color-text-disabled); }
 
+  .pdf-card { display: flex; flex-direction: column; position: sticky; top: 80px; }
+  .pdf-iframe { width: 100%; height: calc(100vh - 220px); min-height: 400px; border: none; border-radius: 6px; display: block; }
+  .pdf-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; height: 300px; color: var(--color-text-disabled);
+    background: var(--color-surface-1); border-radius: 6px;
+  }
+  .pdf-empty p { font-size: 0.875rem; margin: 0; display: flex; align-items: center; gap: 4px; }
+
   .note-form { display: flex; flex-direction: column; gap: 16px; }
   .note-form :global(textarea) {
     width: 100%; padding: 8px 12px; border-radius: 6px; resize: vertical;
@@ -302,5 +348,6 @@
     background: transparent; color: var(--color-text-secondary);
   }
   .icon-btn:hover { background: var(--color-surface-2); }
+  .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .icon-btn.danger:hover { background: color-mix(in srgb, var(--color-error) 10%, transparent); color: var(--color-error); }
 </style>

@@ -69,7 +69,7 @@
 
   <div class="warning-banner">
     <AlertTriangle size={20} />
-    API key values are shown <strong>once</strong>. Store them securely immediately after creation.
+    API key values are shown once. Store them securely immediately after creation.
   </div>
 
   {#if data.apiKeys.length === 0}
