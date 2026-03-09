@@ -28,15 +28,10 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Access',
-    items: [
-      { label: 'MCP API Keys', href: '/api-keys', icon: Key },
-    ],
-  },
-  {
     title: 'System',
     items: [
       { label: 'Settings', href: '/settings', icon: Settings },
+      { label: 'MCP API Keys', href: '/api-keys', icon: Key },
     ],
   },
 ]
