@@ -43,9 +43,9 @@
   }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .btn-sm { padding: 6px 12px; font-size: 12px; }
-  .btn-md { padding: 8px 16px; font-size: 14px; }
-  .btn-lg { padding: 10px 20px; font-size: 16px; }
+  .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
+  .btn-md { padding: 8px 16px; font-size: 0.875rem; }
+  .btn-lg { padding: 10px 20px; font-size: 1rem; }
 
   .btn-filled {
     background: var(--color-primary); color: var(--color-text-inverse);

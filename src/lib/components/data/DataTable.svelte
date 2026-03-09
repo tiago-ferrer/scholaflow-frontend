@@ -38,7 +38,7 @@
     <tbody>
       {#if loading}
         <tr><td colspan={columns.length + (rowActions ? 1 : 0)} class="loading-cell">
-          <Spinner size={24} />
+          <Spinner size={19} />
         </td></tr>
       {:else if rows.length === 0}
         <tr><td colspan={columns.length + (rowActions ? 1 : 0)} class="empty-cell">
@@ -62,10 +62,10 @@
 
 <style>
   .table-wrapper { overflow-x: auto; }
-  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
   th {
     text-align: left; padding: 10px 16px;
-    font-size: 12px; font-weight: 500; color: var(--color-text-secondary);
+    font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary);
     border-bottom: 1px solid var(--color-surface-3);
     white-space: nowrap;
   }

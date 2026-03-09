@@ -34,7 +34,7 @@
       <div class="header-actions">
         {#if headerActions}{@render headerActions()}{/if}
         <button class="close-btn" onclick={onclose} aria-label="Close">
-          <X size={20} />
+          <X size={16} />
         </button>
       </div>
     </div>
@@ -58,7 +58,7 @@
     padding: 20px 24px; border-bottom: 1px solid var(--color-surface-3);
     flex-shrink: 0;
   }
-  .slide-over-header h2 { margin: 0; font-size: 18px; font-weight: 500; }
+  .slide-over-header h2 { margin: 0; font-size: 1.125rem; font-weight: 500; }
   .header-actions { display: flex; align-items: center; gap: 8px; }
   .close-btn {
     display: flex; align-items: center; justify-content: center;

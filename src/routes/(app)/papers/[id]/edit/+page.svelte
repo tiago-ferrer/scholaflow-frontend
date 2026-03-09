@@ -105,7 +105,7 @@
   </div>
 
   {#if loading}
-    <div class="loading"><Spinner size={32} /></div>
+    <div class="loading"><Spinner size={26} /></div>
   {:else}
     <form onsubmit={submit} class="form">
       <div class="form-grid">
@@ -154,8 +154,8 @@
 <style>
   .page { max-width: 720px; }
   .page-header { margin-bottom: 24px; }
-  .back-link { font-size: 14px; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
-  .page-header h1 { margin: 0; font-size: 28px; font-weight: 400; }
+  .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
+  .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
   .loading { display: flex; justify-content: center; padding: 80px; }
 
   .form { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 12px; padding: 28px; }
@@ -165,7 +165,7 @@
   :global(.form textarea) {
     width: 100%; padding: 8px 12px; border-radius: 6px; resize: vertical;
     border: 1px solid var(--color-surface-3); background: var(--color-surface-0);
-    color: var(--color-text-primary); font-size: 14px; font-family: inherit; outline: none;
+    color: var(--color-text-primary); font-size: 0.875rem; font-family: inherit; outline: none;
   }
   :global(.form textarea:focus) { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
 

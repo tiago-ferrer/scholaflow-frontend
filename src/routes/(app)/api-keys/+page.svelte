@@ -64,18 +64,18 @@
 <div class="page">
   <div class="page-header">
     <h1>MCP API Keys</h1>
-    <Button onclick={() => createOpen = true}><Plus size={16} /> New API Key</Button>
+    <Button onclick={() => createOpen = true}><Plus size={13} /> New API Key</Button>
   </div>
 
   <div class="warning-banner">
-    <AlertTriangle size={16} />
+    <AlertTriangle size={13} />
     API key values are shown <strong>once</strong>. Store them securely immediately after creation.
   </div>
 
   {#if data.apiKeys.length === 0}
     <EmptyState title="No API keys" message="Create an API key to access PaperHub via the MCP interface.">
       {#snippet actions()}
-        <Button onclick={() => createOpen = true}><Plus size={16} /> New API Key</Button>
+        <Button onclick={() => createOpen = true}><Plus size={13} /> New API Key</Button>
       {/snippet}
     </EmptyState>
   {:else}
@@ -96,7 +96,7 @@
               <td><StatusChip label={key.privilege} variant={key.privilege === 'OWNER' ? 'info' : 'neutral'} /></td>
               <td class="date">{formatDate(key.created_at)}</td>
               <td>
-                <button class="icon-btn danger" onclick={() => deleteTarget = key.id}><Trash2 size={16} /></button>
+                <button class="icon-btn danger" onclick={() => deleteTarget = key.id}><Trash2 size={13} /></button>
               </td>
             </tr>
           {/each}
@@ -127,10 +127,10 @@
 {#if createdKey}
   <Modal open={!!createdKey} title="API Key Created — Save This Now" onclose={() => createdKey = null}>
     <div class="reveal-body">
-      <p class="reveal-warning"><AlertTriangle size={16} /> This key will <strong>not</strong> be shown again.</p>
+      <p class="reveal-warning"><AlertTriangle size={13} /> This key will <strong>not</strong> be shown again.</p>
       <div class="key-display">
         <code>{createdKey.key_value}</code>
-        <button class="copy-btn" onclick={copyKey}><Copy size={16} /></button>
+        <button class="copy-btn" onclick={copyKey}><Copy size={13} /></button>
       </div>
       <div class="reveal-actions">
         <Button onclick={() => createdKey = null}>I've saved it</Button>
@@ -151,30 +151,30 @@
 <style>
   .page { max-width: 900px; }
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .page-header h1 { margin: 0; font-size: 28px; font-weight: 400; }
+  .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 
   .warning-banner {
     display: flex; align-items: center; gap: 8px;
     background: color-mix(in srgb, var(--color-warning) 15%, transparent);
     color: color-mix(in srgb, var(--color-warning) 80%, var(--color-text-primary));
-    padding: 10px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 20px;
+    padding: 10px 16px; border-radius: 8px; font-size: 0.875rem; margin-bottom: 20px;
   }
 
   .table-wrapper { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 10px; overflow: hidden; }
-  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-surface-3); background: var(--color-surface-1); }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th { text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-surface-3); background: var(--color-surface-1); }
   td { padding: 12px 16px; border-bottom: 1px solid var(--color-surface-2); }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--color-surface-1); }
   .name { font-weight: 500; }
-  .date { color: var(--color-text-secondary); font-size: 13px; }
+  .date { color: var(--color-text-secondary); font-size: 0.8125rem; }
   .actions-col { width: 1%; }
 
   .create-form { display: flex; flex-direction: column; gap: 20px; }
   :global(.create-form select) {
     width: 100%; padding: 8px 12px; border-radius: 6px;
     border: 1px solid var(--color-surface-3); background: var(--color-surface-0);
-    color: var(--color-text-primary); font-size: 14px; font-family: inherit; outline: none;
+    color: var(--color-text-primary); font-size: 0.875rem; font-family: inherit; outline: none;
   }
   .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
@@ -186,9 +186,9 @@
   .icon-btn.danger:hover { background: color-mix(in srgb, var(--color-error) 10%, transparent); color: var(--color-error); }
 
   .reveal-body { display: flex; flex-direction: column; gap: 16px; }
-  .reveal-warning { display: flex; align-items: center; gap: 8px; color: var(--color-error); font-size: 14px; font-weight: 500; margin: 0; }
+  .reveal-warning { display: flex; align-items: center; gap: 8px; color: var(--color-error); font-size: 0.875rem; font-weight: 500; margin: 0; }
   .key-display { display: flex; align-items: center; gap: 8px; background: var(--color-surface-1); border: 1px solid var(--color-surface-3); border-radius: 8px; padding: 12px 16px; }
-  .key-display code { flex: 1; font-family: monospace; font-size: 13px; word-break: break-all; }
+  .key-display code { flex: 1; font-family: monospace; font-size: 0.8125rem; word-break: break-all; }
   .copy-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer; background: transparent; color: var(--color-text-secondary); flex-shrink: 0; }
   .copy-btn:hover { background: var(--color-surface-2); }
   .reveal-actions { display: flex; justify-content: flex-end; }

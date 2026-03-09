@@ -29,7 +29,7 @@
     {#if loading}
       <span class="spinner"></span> Uploading…
     {:else}
-      <Upload size={16} /> Choose file
+      <Upload size={13} /> Choose file
     {/if}
   </label>
 </div>
@@ -39,7 +39,7 @@
     display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 16px; border-radius: 6px; cursor: pointer;
     background: var(--color-surface-1); border: 1px dashed var(--color-surface-3);
-    font-size: 14px; color: var(--color-text-secondary);
+    font-size: 0.875rem; color: var(--color-text-secondary);
     transition: background var(--transition-standard);
   }
   .upload-btn:hover { background: var(--color-surface-2); }

@@ -46,7 +46,7 @@
 <div class="page">
   <div class="page-header">
     <h1>Papers</h1>
-    <Button onclick={() => goto('/papers/new')}><Plus size={16} /> New Paper</Button>
+    <Button onclick={() => goto('/papers/new')}><Plus size={13} /> New Paper</Button>
   </div>
 
   <div class="filters">
@@ -60,7 +60,7 @@
   {#if filtered.length === 0}
     <EmptyState title="No papers found" message="Create your first paper to get started.">
       {#snippet actions()}
-        <Button onclick={() => goto('/papers/new')}><Plus size={16} /> New Paper</Button>
+        <Button onclick={() => goto('/papers/new')}><Plus size={13} /> New Paper</Button>
       {/snippet}
     </EmptyState>
   {:else}
@@ -88,17 +88,17 @@
               <td class="date-cell">{formatDate(paper.updated_at)}</td>
               <td class="actions-cell">
                 <button class="icon-btn" title="View" onclick={() => goto(`/papers/${paper.id}`)}>
-                  <Eye size={16} />
+                  <Eye size={13} />
                 </button>
                 {#if paper.role === 'OWNER'}
                   <button class="icon-btn" title="Edit" onclick={() => goto(`/papers/${paper.id}/edit`)}>
-                    <Pencil size={16} />
+                    <Pencil size={13} />
                   </button>
                   <button class="icon-btn" title="Viewers" onclick={() => goto(`/papers/${paper.id}/viewers`)}>
-                    <Users size={16} />
+                    <Users size={13} />
                   </button>
                   <button class="icon-btn danger" title="Delete" onclick={() => deleteTarget = paper}>
-                    <Trash2 size={16} />
+                    <Trash2 size={13} />
                   </button>
                 {/if}
               </td>
@@ -134,27 +134,27 @@
 <style>
   .page { max-width: 1200px; }
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .page-header h1 { margin: 0; font-size: 28px; font-weight: 400; }
+  .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 
   .filters { display: flex; gap: 8px; margin-bottom: 20px; }
   .filter-chip {
     padding: 6px 16px; border-radius: 20px; border: 1px solid var(--color-surface-3);
-    background: transparent; font-size: 13px; cursor: pointer; color: var(--color-text-secondary);
+    background: transparent; font-size: 0.8125rem; cursor: pointer; color: var(--color-text-secondary);
     transition: all var(--transition-standard);
   }
   .filter-chip:hover { background: var(--color-surface-2); }
   .filter-chip.active { background: var(--color-primary-subtle); color: var(--color-primary); border-color: var(--color-primary); }
 
   .table-wrapper { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 10px; overflow: hidden; }
-  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-surface-3); background: var(--color-surface-1); }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th { text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-surface-3); background: var(--color-surface-1); }
   td { padding: 12px 16px; border-bottom: 1px solid var(--color-surface-2); }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--color-surface-1); }
 
   .title-cell { max-width: 280px; }
   .journal-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .date-cell { white-space: nowrap; color: var(--color-text-secondary); font-size: 13px; }
+  .date-cell { white-space: nowrap; color: var(--color-text-secondary); font-size: 0.8125rem; }
   .paper-link { color: var(--color-text-primary); text-decoration: none; font-weight: 500; }
   .paper-link:hover { color: var(--color-primary); }
 

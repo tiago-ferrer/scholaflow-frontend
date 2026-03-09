@@ -13,7 +13,7 @@
   .badge {
     display: inline-flex; align-items: center;
     padding: 2px 7px; border-radius: 10px;
-    font-size: 11px; font-weight: 600;
+    font-size: 0.6875rem; font-weight: 600;
   }
   .badge-primary { background: var(--color-primary); color: white; }
   .badge-neutral { background: var(--color-surface-2); color: var(--color-text-secondary); }

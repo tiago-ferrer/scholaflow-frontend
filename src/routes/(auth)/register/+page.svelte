@@ -51,14 +51,14 @@
 <p class="footer">Already have an account? <a href="/login">Sign in</a></p>
 
 <style>
-  .title { font-size: 22px; font-weight: 400; margin: 0 0 24px; }
+  .title { font-size: 1.375rem; font-weight: 400; margin: 0 0 24px; }
   .error-banner {
     background: color-mix(in srgb, var(--color-error) 10%, transparent);
     color: var(--color-error); padding: 10px 14px; border-radius: 6px;
-    font-size: 14px; margin-bottom: 16px;
+    font-size: 0.875rem; margin-bottom: 16px;
   }
   .form { display: flex; flex-direction: column; gap: 16px; }
   .form :global(.btn) { width: 100%; justify-content: center; }
-  .footer { font-size: 14px; color: var(--color-text-secondary); margin-top: 20px; text-align: center; }
+  .footer { font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 20px; text-align: center; }
   .footer a { color: var(--color-primary); text-decoration: none; }
 </style>

@@ -15,33 +15,33 @@
 <div class="page">
   <div class="page-header">
     <h1>Dashboard</h1>
-    <Button onclick={() => goto('/papers/new')}><Plus size={16} /> New Paper</Button>
+    <Button onclick={() => goto('/papers/new')}><Plus size={13} /> New Paper</Button>
   </div>
 
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-icon"><FileText size={24} /></div>
+      <div class="stat-icon"><FileText size={19} /></div>
       <div class="stat-body">
         <p class="stat-value">{data.recentPapers.length}</p>
         <p class="stat-label">Recent Papers</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon owner"><BookOpen size={24} /></div>
+      <div class="stat-icon owner"><BookOpen size={19} /></div>
       <div class="stat-body">
         <p class="stat-value">{ownerCount}</p>
         <p class="stat-label">As Owner</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon viewer"><Users size={24} /></div>
+      <div class="stat-icon viewer"><Users size={19} /></div>
       <div class="stat-body">
         <p class="stat-value">{viewerCount}</p>
         <p class="stat-label">Shared with me</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon keys"><Key size={24} /></div>
+      <div class="stat-icon keys"><Key size={19} /></div>
       <div class="stat-body">
         <p class="stat-value">{data.apiKeyCount}</p>
         <p class="stat-label">API Keys</p>
@@ -79,7 +79,7 @@
 <style>
   .page { max-width: 1100px; }
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .page-header h1 { margin: 0; font-size: 28px; font-weight: 400; }
+  .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 
   .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
   .stat-card {
@@ -94,10 +94,10 @@
   .stat-icon.owner { background: color-mix(in srgb, var(--color-success) 15%, transparent); color: var(--color-success); }
   .stat-icon.viewer { background: color-mix(in srgb, var(--color-warning) 20%, transparent); color: var(--color-warning); }
   .stat-icon.keys { background: color-mix(in srgb, var(--color-info) 15%, transparent); color: var(--color-info); }
-  .stat-value { font-size: 28px; font-weight: 500; margin: 0; color: var(--color-text-primary); }
-  .stat-label { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .stat-value { font-size: 1.75rem; font-weight: 500; margin: 0; color: var(--color-text-primary); }
+  .stat-label { font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0; }
 
-  .section-title { font-size: 18px; font-weight: 500; margin: 0 0 16px; }
+  .section-title { font-size: 1.125rem; font-weight: 500; margin: 0 0 16px; }
 
   .paper-cards { display: flex; flex-direction: column; gap: 12px; }
   .paper-card {
@@ -107,10 +107,10 @@
   }
   .paper-card:hover { box-shadow: var(--shadow-1); }
   .paper-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-  .paper-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; }
-  .paper-meta { font-size: 13px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .paper-title { font-size: 0.9375rem; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; }
+  .paper-meta { font-size: 0.8125rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .dot { color: var(--color-text-disabled); }
-  .paper-updated { font-size: 12px; color: var(--color-text-disabled); margin: 6px 0 0; }
-  .empty { padding: 32px; text-align: center; color: var(--color-text-secondary); font-size: 14px; }
+  .paper-updated { font-size: 0.75rem; color: var(--color-text-disabled); margin: 6px 0 0; }
+  .empty { padding: 32px; text-align: center; color: var(--color-text-secondary); font-size: 0.875rem; }
   .empty a { color: var(--color-primary); }
 </style>

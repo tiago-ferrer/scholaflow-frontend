@@ -14,15 +14,15 @@
 
 <div class="pagination">
   <Button variant="outlined" size="sm" disabled={page === 0} onclick={onprev}>
-    <ChevronLeft size={16} /> Previous
+    <ChevronLeft size={13} /> Previous
   </Button>
   <span class="page-info">Page {page + 1}</span>
   <Button variant="outlined" size="sm" disabled={!hasNext} onclick={onnext}>
-    Next <ChevronRight size={16} />
+    Next <ChevronRight size={13} />
   </Button>
 </div>
 
 <style>
   .pagination { display: flex; align-items: center; gap: 12px; justify-content: center; padding: 16px 0; }
-  .page-info { font-size: 13px; color: var(--color-text-secondary); }
+  .page-info { font-size: 0.8125rem; color: var(--color-text-secondary); }
 </style>

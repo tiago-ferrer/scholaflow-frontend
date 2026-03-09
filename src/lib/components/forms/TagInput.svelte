@@ -37,7 +37,7 @@
     <span class="tag">
       {tag}
       <button type="button" onclick={() => removeTag(tag)} aria-label="Remove {tag}">
-        <X size={12} />
+        <X size={10} />
       </button>
     </span>
   {/each}
@@ -66,7 +66,7 @@
   .tag {
     display: inline-flex; align-items: center; gap: 4px;
     background: var(--color-primary-subtle); color: var(--color-primary);
-    padding: 2px 8px; border-radius: 12px; font-size: 13px;
+    padding: 2px 8px; border-radius: 12px; font-size: 0.8125rem;
   }
   .tag button {
     background: none; border: none; cursor: pointer; padding: 0;
@@ -75,7 +75,7 @@
   .tag button:hover { opacity: 1; }
   .tag-text-input {
     border: none; outline: none; background: transparent;
-    font-size: 14px; color: var(--color-text-primary);
+    font-size: 0.875rem; color: var(--color-text-primary);
     font-family: inherit; min-width: 120px; flex: 1;
   }
 </style>

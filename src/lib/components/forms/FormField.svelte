@@ -24,17 +24,17 @@
 
 <style>
   .field { display: flex; flex-direction: column; gap: 4px; }
-  .label { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); }
+  .label { font-size: 0.8125rem; font-weight: 500; color: var(--color-text-secondary); }
   .req { color: var(--color-error); margin-left: 2px; }
-  .error { font-size: 12px; color: var(--color-error); margin: 0; }
-  .hint  { font-size: 12px; color: var(--color-text-secondary); margin: 0; }
+  .error { font-size: 0.75rem; color: var(--color-error); margin: 0; }
+  .hint  { font-size: 0.75rem; color: var(--color-text-secondary); margin: 0; }
   .control :global(input),
   .control :global(textarea),
   .control :global(select) {
     width: 100%; padding: 8px 12px; border-radius: 6px;
     border: 1px solid var(--color-surface-3);
     background: var(--color-surface-0); color: var(--color-text-primary);
-    font-size: 14px; font-family: inherit; outline: none;
+    font-size: 0.875rem; font-family: inherit; outline: none;
     transition: border-color var(--transition-standard);
   }
   .control :global(input:focus),

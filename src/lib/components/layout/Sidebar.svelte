@@ -15,14 +15,16 @@
   aria-label="Main navigation"
 >
   <div class="sidebar-header">
-    {#if !$sidebarCollapsed}
-      <span class="product-name">PaperHub</span>
+    {#if $sidebarCollapsed}
+      <span class="product-name-collapsed"><span class="logo-paper">p</span><span class="logo-hub">hub</span></span>
+    {:else}
+      <span class="product-name"><span class="logo-paper">paper</span><span class="logo-hub">hub</span></span>
     {/if}
     <button class="collapse-btn" onclick={toggleSidebar} aria-label="Toggle sidebar">
       {#if $sidebarCollapsed}
-        <ChevronRight size={18} />
+        <ChevronRight size={14} />
       {:else}
-        <ChevronLeft size={18} />
+        <ChevronLeft size={14} />
       {/if}
     </button>
   </div>
@@ -41,7 +43,7 @@
           title={$sidebarCollapsed ? item.label : undefined}
           aria-current={active ? 'page' : undefined}
         >
-          <item.icon size={20} />
+          <item.icon size={16} />
           {#if !$sidebarCollapsed}
             <span>{item.label}</span>
           {/if}
@@ -56,7 +58,7 @@
   {#if !$sidebarCollapsed}
     <div class="sidebar-footer">
       <div class="user-chip">
-        <Avatar name={$currentUser ?? 'U'} size={32} />
+        <Avatar name={$currentUser ?? 'U'} size={26} />
         <span class="username">{$currentUser}</span>
       </div>
     </div>
@@ -81,7 +83,11 @@
     padding: 0 16px; gap: 8px; flex-shrink: 0;
     border-bottom: 1px solid var(--color-surface-3);
   }
-  .product-name { font-size: 16px; font-weight: 600; color: var(--color-text-primary); white-space: nowrap; }
+  .product-name { font-size: 20px; font-weight: 600; white-space: nowrap; }
+  .product-name-collapsed { font-size: 16px; font-weight: 600; white-space: nowrap; }
+  .logo-paper { color: #447EE2; }
+  .logo-hub   { color: #596772; }
+  :global([data-theme="dark"]) .logo-hub { color: #ffffff; }
   .collapse-btn {
     display: flex; align-items: center; justify-content: center;
     width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
@@ -93,14 +99,14 @@
 
   .sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
   .section-label {
-    font-size: 11px; font-weight: 500; letter-spacing: .8px; text-transform: uppercase;
+    font-size: 0.6875rem; font-weight: 500; letter-spacing: .8px; text-transform: uppercase;
     color: var(--color-text-secondary); padding: 16px 16px 4px; white-space: nowrap; margin: 0;
   }
   .nav-item {
     display: flex; align-items: center; gap: 12px;
     padding: 10px 16px; margin: 2px 8px; border-radius: 24px;
     color: var(--color-sidebar-text); text-decoration: none; white-space: nowrap;
-    font-size: 14px; font-weight: 500;
+    font-size: 0.875rem; font-weight: 500;
     transition: background var(--transition-standard), color var(--transition-standard);
   }
   .nav-item:hover { background: var(--color-surface-2); }
@@ -110,11 +116,11 @@
   }
   .badge {
     margin-left: auto; background: var(--color-primary); color: white;
-    font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px;
+    font-size: 0.6875rem; font-weight: 600; padding: 2px 7px; border-radius: 10px;
   }
   .sidebar-footer {
     padding: 12px 16px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
   }
   .user-chip { display: flex; align-items: center; gap: 10px; }
-  .username { font-size: 13px; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .username { font-size: 0.8125rem; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>

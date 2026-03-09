@@ -48,7 +48,7 @@
     padding: 24px; max-width: 400px; width: 100%;
     box-shadow: var(--shadow-3);
   }
-  .dialog-title { margin: 0 0 8px; font-size: 18px; font-weight: 500; }
-  .dialog-message { margin: 0 0 20px; font-size: 14px; color: var(--color-text-secondary); }
+  .dialog-title { margin: 0 0 8px; font-size: 1.125rem; font-weight: 500; }
+  .dialog-message { margin: 0 0 20px; font-size: 0.875rem; color: var(--color-text-secondary); }
   .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
 </style>

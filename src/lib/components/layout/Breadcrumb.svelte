@@ -1,11 +1,23 @@
 <script lang="ts">
   import { page } from '$app/stores'
   import { ChevronRight } from 'lucide-svelte'
+  import type { Paper } from '$lib/types/paper'
+
+  function labelFor(part: string): string {
+    // If this segment looks like a paper ID, try to use paper data from the page
+    const paper = ($page.data as { paper?: Paper }).paper
+    if (paper && part === paper.id) {
+      const firstAuthor = paper.authors[0]?.split(' ').pop() ?? ''
+      const extra = paper.authors.length > 1 ? ' et al.' : ''
+      return `${paper.year} · ${firstAuthor}${extra}`
+    }
+    return part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ')
+  }
 
   const crumbs = $derived.by(() => {
     const parts = $page.url.pathname.split('/').filter(Boolean)
     return parts.map((part, i) => ({
-      label: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' '),
+      label: labelFor(part),
       href: '/' + parts.slice(0, i + 1).join('/'),
     }))
   })
@@ -14,7 +26,7 @@
 <nav class="breadcrumb" aria-label="Breadcrumb">
   {#each crumbs as crumb, i}
     {#if i > 0}
-      <ChevronRight size={14} class="sep" />
+      <ChevronRight size={11} class="sep" />
     {/if}
     {#if i === crumbs.length - 1}
       <span class="current">{crumb.label}</span>
@@ -27,7 +39,7 @@
 <style>
   .breadcrumb {
     display: flex; align-items: center; gap: 4px;
-    font-size: 14px; min-width: 0;
+    font-size: 1.006rem; min-width: 0;
   }
   .link { color: var(--color-text-secondary); text-decoration: none; }
   .link:hover { color: var(--color-primary); }

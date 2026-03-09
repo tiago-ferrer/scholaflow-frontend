@@ -67,7 +67,7 @@
         </FormField>
       </div>
       <Button type="submit" loading={adding} disabled={!newViewer.trim()}>
-        <UserPlus size={16} /> Add Viewer
+        <UserPlus size={13} /> Add Viewer
       </Button>
     </form>
   </div>
@@ -92,7 +92,7 @@
               <td class="date">{formatDate(viewer.granted_at)}</td>
               <td>
                 <button class="icon-btn danger" onclick={() => revokeTarget = viewer}>
-                  <Trash2 size={16} />
+                  <Trash2 size={13} />
                 </button>
               </td>
             </tr>
@@ -115,21 +115,21 @@
 <style>
   .page { max-width: 680px; }
   .page-header { margin-bottom: 24px; }
-  .back-link { font-size: 14px; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
-  .page-header h1 { margin: 0; font-size: 28px; font-weight: 400; }
+  .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
+  .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 
   .card { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-  .card-title { font-size: 16px; font-weight: 500; margin: 0 0 16px; }
+  .card-title { font-size: 1rem; font-weight: 500; margin: 0 0 16px; }
 
   .add-form { display: flex; align-items: flex-end; gap: 12px; }
   .add-input { flex: 1; }
 
-  .viewer-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { text-align: left; padding: 8px 12px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-surface-3); }
+  .viewer-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th { text-align: left; padding: 8px 12px; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-surface-3); }
   td { padding: 12px; border-bottom: 1px solid var(--color-surface-2); }
   tr:last-child td { border-bottom: none; }
   .username { font-weight: 500; }
-  .date { color: var(--color-text-secondary); font-size: 13px; }
+  .date { color: var(--color-text-secondary); font-size: 0.8125rem; }
   .actions-col { width: 1%; }
 
   .icon-btn {

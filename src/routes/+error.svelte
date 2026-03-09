@@ -13,7 +13,7 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     min-height: 100vh; gap: 16px;
   }
-  h1 { font-size: 72px; margin: 0; color: var(--color-text-secondary, #5f6368); }
-  p  { font-size: 18px; color: var(--color-text-secondary, #5f6368); }
+  h1 { font-size: 4.5rem; margin: 0; color: var(--color-text-secondary, #5f6368); }
+  p  { font-size: 1.125rem; color: var(--color-text-secondary, #5f6368); }
   a  { color: var(--color-primary, #1a73e8); text-decoration: none; }
 </style>

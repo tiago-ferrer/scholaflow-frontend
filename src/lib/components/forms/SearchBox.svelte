@@ -17,7 +17,7 @@
 </script>
 
 <div class="search-box">
-  <Search size={16} />
+  <Search size={13} />
   <input
     type="search"
     {placeholder}
@@ -36,7 +36,7 @@
   }
   .search-input {
     border: none; background: transparent; outline: none;
-    font-size: 14px; color: var(--color-text-primary);
+    font-size: 0.875rem; color: var(--color-text-primary);
     width: 200px;
   }
   .search-input::placeholder { color: var(--color-text-disabled); }

@@ -103,10 +103,10 @@
     {#if paper.role === 'OWNER'}
       <div class="header-actions">
         <Button variant="outlined" size="sm" onclick={() => goto(`/papers/${paper.id}/viewers`)}>
-          <Users size={16} /> Viewers
+          <Users size={13} /> Viewers
         </Button>
         <Button variant="outlined" size="sm" onclick={() => goto(`/papers/${paper.id}/edit`)}>
-          <Pencil size={16} /> Edit
+          <Pencil size={13} /> Edit
         </Button>
       </div>
     {/if}
@@ -134,7 +134,7 @@
           {#if paper.doi}
             <span class="meta-label">DOI</span>
             <a href={formatDoi(paper.doi)} target="_blank" rel="noreferrer" class="doi-link">
-              {paper.doi} <ExternalLink size={12} />
+              {paper.doi} <ExternalLink size={10} />
             </a>
           {/if}
           {#if paper.citation_count}
@@ -172,15 +172,15 @@
           <ul class="attach-list">
             {#each activeAttachments as attach}
               <li class="attach-item">
-                <FileText size={16} />
+                <FileText size={13} />
                 <div class="attach-info">
                   <span class="attach-name">{attach.filename}</span>
                   <span class="attach-size">{formatBytes(attach.size_bytes)}</span>
                 </div>
                 <div class="attach-actions">
-                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={16} /></button>
+                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={13} /></button>
                   {#if paper.role === 'OWNER'}
-                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={16} /></button>
+                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={13} /></button>
                   {/if}
                 </div>
               </li>
@@ -196,7 +196,7 @@
           <div class="card-header">
             <h2 class="card-title">Notes</h2>
             <Button variant="tonal" size="sm" onclick={() => noteSlideOpen = true}>
-              <Plus size={14} /> Add
+              <Plus size={11} /> Add
             </Button>
           </div>
           {#if activeNotes.length === 0}
@@ -208,7 +208,7 @@
                   <p class="note-text">{note.note}</p>
                   <div class="note-footer">
                     <span class="note-date">{formatDate(note.created_at)}</span>
-                    <button class="icon-btn danger" onclick={() => deleteNoteTarget = note.id}><Trash2 size={14} /></button>
+                    <button class="icon-btn danger" onclick={() => deleteNoteTarget = note.id}><Trash2 size={11} /></button>
                   </div>
                 </li>
               {/each}
@@ -251,9 +251,9 @@
   .page { max-width: 1100px; }
   .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
   .header-left { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-  .back-link { font-size: 14px; color: var(--color-primary); text-decoration: none; }
+  .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
   .title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .page-header h1 { margin: 0; font-size: 22px; font-weight: 500; line-height: 1.3; }
+  .page-header h1 { margin: 0; font-size: 1.375rem; font-weight: 500; line-height: 1.3; }
   .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
   .layout { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; align-items: start; }
@@ -261,40 +261,40 @@
 
   .card { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .card-title { font-size: 15px; font-weight: 500; margin: 0 0 16px; }
+  .card-title { font-size: 0.9375rem; font-weight: 500; margin: 0 0 16px; }
   .card-header .card-title { margin: 0; }
 
-  .meta-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; font-size: 14px; }
+  .meta-grid { display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; font-size: 0.875rem; }
   .meta-label { color: var(--color-text-secondary); font-weight: 500; }
-  .doi-link { color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+  .doi-link { color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 0.8125rem; }
 
   .chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
-  .cat-chip { padding: 2px 8px; border-radius: 12px; font-size: 12px; background: var(--color-surface-2); color: var(--color-text-secondary); }
+  .cat-chip { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; background: var(--color-surface-2); color: var(--color-text-secondary); }
 
-  .abstract { font-size: 14px; line-height: 1.7; margin: 0; }
+  .abstract { font-size: 0.875rem; line-height: 1.7; margin: 0; }
 
   .attach-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
   .attach-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--color-surface-1); border-radius: 8px; color: var(--color-text-secondary); }
   .attach-info { flex: 1; min-width: 0; }
-  .attach-name { font-size: 13px; color: var(--color-text-primary); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .attach-size { font-size: 11px; color: var(--color-text-disabled); }
+  .attach-name { font-size: 0.8125rem; color: var(--color-text-primary); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .attach-size { font-size: 0.6875rem; color: var(--color-text-disabled); }
   .attach-actions { display: flex; gap: 4px; }
 
   .note-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
   .note-item { padding: 12px; background: var(--color-surface-1); border-radius: 8px; border-left: 3px solid var(--color-primary-subtle); }
-  .note-text { font-size: 14px; line-height: 1.6; margin: 0 0 8px; }
+  .note-text { font-size: 0.875rem; line-height: 1.6; margin: 0 0 8px; }
   .note-footer { display: flex; align-items: center; justify-content: space-between; }
-  .note-date { font-size: 11px; color: var(--color-text-disabled); }
+  .note-date { font-size: 0.6875rem; color: var(--color-text-disabled); }
 
   .note-form { display: flex; flex-direction: column; gap: 16px; }
   .note-form :global(textarea) {
     width: 100%; padding: 8px 12px; border-radius: 6px; resize: vertical;
     border: 1px solid var(--color-surface-3); background: var(--color-surface-0);
-    color: var(--color-text-primary); font-size: 14px; font-family: inherit; outline: none;
+    color: var(--color-text-primary); font-size: 0.875rem; font-family: inherit; outline: none;
   }
   .note-form :global(textarea:focus) { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
 
-  .empty-msg { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
+  .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
 
   .icon-btn {
     display: flex; align-items: center; justify-content: center;

@@ -24,7 +24,7 @@
       <div class="modal-header">
         <h3>{title}</h3>
         <button class="close-btn" onclick={onclose} aria-label="Close">
-          <X size={20} />
+          <X size={16} />
         </button>
       </div>
       <div class="modal-body">
@@ -47,7 +47,7 @@
     display: flex; align-items: center; justify-content: space-between;
     padding: 20px 24px; border-bottom: 1px solid var(--color-surface-3);
   }
-  .modal-header h3 { margin: 0; font-size: 18px; font-weight: 500; }
+  .modal-header h3 { margin: 0; font-size: 1.125rem; font-weight: 500; }
   .close-btn {
     display: flex; align-items: center; justify-content: center;
     width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;

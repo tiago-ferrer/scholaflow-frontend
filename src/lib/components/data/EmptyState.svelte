@@ -20,8 +20,8 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 64px 24px; text-align: center; gap: 8px;
   }
-  .icon { font-size: 48px; }
-  .title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
-  .msg { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
+  .icon { font-size: 3rem; }
+  .title { font-size: 1.125rem; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+  .msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
   .actions { margin-top: 16px; }
 </style>

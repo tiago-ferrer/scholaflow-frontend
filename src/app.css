@@ -3,7 +3,7 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-  --font-family-sans: 'Google Sans', 'Roboto', system-ui, sans-serif;
+  --font-family-sans: 'Google Sans', system-ui, sans-serif;
   --font-family-mono: 'Roboto Mono', monospace;
 
   --color-surface-0: var(--color-surface-0);
@@ -67,8 +67,8 @@
 
   /* Layout */
   --topbar-height: 64px;
-  --sidebar-width: 256px;
-  --sidebar-collapsed-width: 72px;
+  --sidebar-width: 200px;
+  --sidebar-collapsed-width: 61px;
 
   /* Transitions */
   --transition-sidebar: 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -108,9 +108,17 @@
 
 body {
   margin: 0;
-  font-family: var(--font-family-sans);
+  font-family: 'Google Sans', system-ui, sans-serif;
   background: var(--color-surface-0);
   color: var(--color-text-primary);
+}
+
+*, input, button, select, textarea {
+  font-family: 'Google Sans', system-ui, sans-serif;
+}
+
+html {
+  font-size: 80%;
 }
 
 @media (prefers-reduced-motion: reduce) {

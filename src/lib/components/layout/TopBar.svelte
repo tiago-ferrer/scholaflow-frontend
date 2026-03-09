@@ -15,13 +15,13 @@
     <SearchBox placeholder="Search papers…" />
     <button class="icon-btn" onclick={toggleTheme} aria-label="Toggle theme">
       {#if $theme === 'dark'}
-        <Sun size={20} />
+        <Sun size={16} />
       {:else}
-        <Moon size={20} />
+        <Moon size={16} />
       {/if}
     </button>
     <button class="icon-btn" onclick={logout} aria-label="Log out">
-      <LogOut size={20} />
+      <LogOut size={16} />
     </button>
   </div>
 </header>
