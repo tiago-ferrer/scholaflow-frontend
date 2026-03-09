@@ -98,7 +98,7 @@
   /* Layout */
   --topbar-height: 64px;
   --sidebar-width: 200px;
-  --sidebar-collapsed-width: 61px;
+  --sidebar-collapsed-width: 71px;
 
   /* Transitions */
   --transition-sidebar: 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -148,7 +148,7 @@ body {
 }
 
 html {
-  font-size: 80%;
+  font-size: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

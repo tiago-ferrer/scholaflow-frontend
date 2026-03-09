@@ -26,7 +26,7 @@
 <nav class="breadcrumb" aria-label="Breadcrumb">
   {#each crumbs as crumb, i}
     {#if i > 0}
-      <ChevronRight size={11} class="sep" />
+      <ChevronRight size={18} class="sep" />
     {/if}
     {#if i === crumbs.length - 1}
       <span class="current">{crumb.label}</span>

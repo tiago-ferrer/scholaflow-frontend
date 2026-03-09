@@ -17,7 +17,7 @@
 </script>
 
 <div class="search-box">
-  <Search size={13} />
+  <Search size={20} />
   <input
     type="search"
     {placeholder}

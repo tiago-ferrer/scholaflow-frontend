@@ -29,7 +29,7 @@
     {#if loading}
       <span class="spinner"></span> Uploading…
     {:else}
-      <Upload size={13} /> Choose file
+      <Upload size={20} /> Choose file
     {/if}
   </label>
 </div>

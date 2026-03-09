@@ -24,7 +24,7 @@
       <div class="modal-header">
         <h3>{title}</h3>
         <button class="close-btn" onclick={onclose} aria-label="Close">
-          <X size={16} />
+          <X size={25} />
         </button>
       </div>
       <div class="modal-body">

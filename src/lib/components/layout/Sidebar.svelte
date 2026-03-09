@@ -14,17 +14,18 @@
   class:collapsed={$sidebarCollapsed}
   aria-label="Main navigation"
 >
-  <div class="sidebar-header">
-    {#if $sidebarCollapsed}
-      <span class="product-name-collapsed"><span class="logo-paper">p</span><span class="logo-hub">hub</span></span>
-    {:else}
-      <span class="product-name"><span class="logo-paper">paper</span><span class="logo-hub">hub</span></span>
+  <div class="sidebar-header" class:collapsed={$sidebarCollapsed}>
+    {#if !$sidebarCollapsed}
+      <div class="product-brand">
+        <span class="product-name"><span class="logo-paper">paper</span><span class="logo-hub">hub</span></span>
+        <span class="product-tagline">Research | Share | Connect</span>
+      </div>
     {/if}
     <button class="collapse-btn" onclick={toggleSidebar} aria-label="Toggle sidebar">
       {#if $sidebarCollapsed}
-        <ChevronRight size={14} />
+        <ChevronRight size={29} />
       {:else}
-        <ChevronLeft size={14} />
+        <ChevronLeft size={29} />
       {/if}
     </button>
   </div>
@@ -43,7 +44,7 @@
           title={$sidebarCollapsed ? item.label : undefined}
           aria-current={active ? 'page' : undefined}
         >
-          <item.icon size={16} />
+          <item.icon size={20} />
           {#if !$sidebarCollapsed}
             <span>{item.label}</span>
           {/if}
@@ -58,7 +59,7 @@
   {#if !$sidebarCollapsed}
     <div class="sidebar-footer">
       <div class="user-chip">
-        <Avatar name={$currentUser ?? 'U'} size={26} />
+        <Avatar name={$currentUser ?? 'U'} size={40} />
         <span class="username">{$currentUser}</span>
       </div>
     </div>
@@ -83,7 +84,13 @@
     padding: 0 16px; gap: 8px; flex-shrink: 0;
     border-bottom: 1px solid var(--color-surface-3);
   }
+  .sidebar-header.collapsed {
+    justify-content: center;
+    padding: 0;
+  }
+  .product-brand { display: flex; flex-direction: column; gap: 1px; }
   .product-name { font-size: 20px; font-weight: 600; white-space: nowrap; }
+  .product-tagline { font-size: 0.6rem; color: #545A62; letter-spacing: 0.05em; white-space: nowrap; }
   .product-name-collapsed { font-size: 16px; font-weight: 600; white-space: nowrap; }
   .logo-paper { color: #447EE2; }
   .logo-hub   { color: #596772; }

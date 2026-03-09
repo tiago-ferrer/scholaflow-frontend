@@ -67,7 +67,7 @@
         </FormField>
       </div>
       <Button type="submit" loading={adding} disabled={!newViewer.trim()}>
-        <UserPlus size={13} /> Add Viewer
+        <UserPlus size={20} /> Add Viewer
       </Button>
     </form>
   </div>
@@ -92,7 +92,7 @@
               <td class="date">{formatDate(viewer.granted_at)}</td>
               <td>
                 <button class="icon-btn danger" onclick={() => revokeTarget = viewer}>
-                  <Trash2 size={13} />
+                  <Trash2 size={20} />
                 </button>
               </td>
             </tr>
@@ -113,7 +113,7 @@
 />
 
 <style>
-  .page { max-width: 680px; }
+  .page { max-width: 100%; }
   .page-header { margin-bottom: 24px; }
   .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
   .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }

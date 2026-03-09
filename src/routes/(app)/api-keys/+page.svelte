@@ -64,18 +64,18 @@
 <div class="page">
   <div class="page-header">
     <h1>MCP API Keys</h1>
-    <Button onclick={() => createOpen = true}><Plus size={13} /> New API Key</Button>
+    <Button onclick={() => createOpen = true}><Plus size={20} /> New API Key</Button>
   </div>
 
   <div class="warning-banner">
-    <AlertTriangle size={13} />
+    <AlertTriangle size={20} />
     API key values are shown <strong>once</strong>. Store them securely immediately after creation.
   </div>
 
   {#if data.apiKeys.length === 0}
     <EmptyState title="No API keys" message="Create an API key to access PaperHub via the MCP interface.">
       {#snippet actions()}
-        <Button onclick={() => createOpen = true}><Plus size={13} /> New API Key</Button>
+        <Button onclick={() => createOpen = true}><Plus size={20} /> New API Key</Button>
       {/snippet}
     </EmptyState>
   {:else}
@@ -96,7 +96,7 @@
               <td><StatusChip label={key.privilege} variant={key.privilege === 'OWNER' ? 'info' : 'neutral'} /></td>
               <td class="date">{formatDate(key.created_at)}</td>
               <td>
-                <button class="icon-btn danger" onclick={() => deleteTarget = key.id}><Trash2 size={13} /></button>
+                <button class="icon-btn danger" onclick={() => deleteTarget = key.id}><Trash2 size={20} /></button>
               </td>
             </tr>
           {/each}
@@ -127,10 +127,10 @@
 {#if createdKey}
   <Modal open={!!createdKey} title="API Key Created — Save This Now" onclose={() => createdKey = null}>
     <div class="reveal-body">
-      <p class="reveal-warning"><AlertTriangle size={13} /> This key will <strong>not</strong> be shown again.</p>
+      <p class="reveal-warning"><AlertTriangle size={20} /> This key will <strong>not</strong> be shown again.</p>
       <div class="key-display">
         <code>{createdKey.key_value}</code>
-        <button class="copy-btn" onclick={copyKey}><Copy size={13} /></button>
+        <button class="copy-btn" onclick={copyKey}><Copy size={20} /></button>
       </div>
       <div class="reveal-actions">
         <Button onclick={() => createdKey = null}>I've saved it</Button>
@@ -149,7 +149,7 @@
 />
 
 <style>
-  .page { max-width: 900px; }
+  .page { max-width: 100%; }
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 

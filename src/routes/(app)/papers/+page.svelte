@@ -46,7 +46,7 @@
 <div class="page">
   <div class="page-header">
     <h1>Papers</h1>
-    <Button onclick={() => goto('/papers/new')}><Plus size={13} /> New Paper</Button>
+    <Button onclick={() => goto('/papers/new')}><Plus size={20} /> New Paper</Button>
   </div>
 
   <div class="filters">
@@ -60,7 +60,7 @@
   {#if filtered.length === 0}
     <EmptyState title="No papers found" message="Create your first paper to get started.">
       {#snippet actions()}
-        <Button onclick={() => goto('/papers/new')}><Plus size={13} /> New Paper</Button>
+        <Button onclick={() => goto('/papers/new')}><Plus size={20} /> New Paper</Button>
       {/snippet}
     </EmptyState>
   {:else}
@@ -88,17 +88,17 @@
               <td class="date-cell">{formatDate(paper.updated_at)}</td>
               <td class="actions-cell">
                 <button class="icon-btn" title="View" onclick={() => goto(`/papers/${paper.id}`)}>
-                  <Eye size={13} />
+                  <Eye size={20} />
                 </button>
                 {#if paper.role === 'OWNER'}
                   <button class="icon-btn" title="Edit" onclick={() => goto(`/papers/${paper.id}/edit`)}>
-                    <Pencil size={13} />
+                    <Pencil size={20} />
                   </button>
                   <button class="icon-btn" title="Viewers" onclick={() => goto(`/papers/${paper.id}/viewers`)}>
-                    <Users size={13} />
+                    <Users size={20} />
                   </button>
                   <button class="icon-btn danger" title="Delete" onclick={() => deleteTarget = paper}>
-                    <Trash2 size={13} />
+                    <Trash2 size={20} />
                   </button>
                 {/if}
               </td>
@@ -132,7 +132,7 @@
 />
 
 <style>
-  .page { max-width: 1200px; }
+  .page { max-width: 100%; }
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 

@@ -103,10 +103,10 @@
     {#if paper.role === 'OWNER'}
       <div class="header-actions">
         <Button variant="outlined" size="sm" onclick={() => goto(`/papers/${paper.id}/viewers`)}>
-          <Users size={13} /> Viewers
+          <Users size={20} /> Viewers
         </Button>
         <Button variant="outlined" size="sm" onclick={() => goto(`/papers/${paper.id}/edit`)}>
-          <Pencil size={13} /> Edit
+          <Pencil size={20} /> Edit
         </Button>
       </div>
     {/if}
@@ -134,7 +134,7 @@
           {#if paper.doi}
             <span class="meta-label">DOI</span>
             <a href={formatDoi(paper.doi)} target="_blank" rel="noreferrer" class="doi-link">
-              {paper.doi} <ExternalLink size={10} />
+              {paper.doi} <ExternalLink size={16} />
             </a>
           {/if}
           {#if paper.citation_count}
@@ -172,15 +172,15 @@
           <ul class="attach-list">
             {#each activeAttachments as attach}
               <li class="attach-item">
-                <FileText size={13} />
+                <FileText size={20} />
                 <div class="attach-info">
                   <span class="attach-name">{attach.filename}</span>
                   <span class="attach-size">{formatBytes(attach.size_bytes)}</span>
                 </div>
                 <div class="attach-actions">
-                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={13} /></button>
+                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
                   {#if paper.role === 'OWNER'}
-                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={13} /></button>
+                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
                   {/if}
                 </div>
               </li>
@@ -196,7 +196,7 @@
           <div class="card-header">
             <h2 class="card-title">Notes</h2>
             <Button variant="tonal" size="sm" onclick={() => noteSlideOpen = true}>
-              <Plus size={11} /> Add
+              <Plus size={18} /> Add
             </Button>
           </div>
           {#if activeNotes.length === 0}
@@ -208,7 +208,7 @@
                   <p class="note-text">{note.note}</p>
                   <div class="note-footer">
                     <span class="note-date">{formatDate(note.created_at)}</span>
-                    <button class="icon-btn danger" onclick={() => deleteNoteTarget = note.id}><Trash2 size={11} /></button>
+                    <button class="icon-btn danger" onclick={() => deleteNoteTarget = note.id}><Trash2 size={18} /></button>
                   </div>
                 </li>
               {/each}
@@ -248,7 +248,7 @@
 />
 
 <style>
-  .page { max-width: 1100px; }
+  .page { max-width: 100%; }
   .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
   .header-left { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }

@@ -14,11 +14,11 @@
 
 <div class="pagination">
   <Button variant="outlined" size="sm" disabled={page === 0} onclick={onprev}>
-    <ChevronLeft size={13} /> Previous
+    <ChevronLeft size={20} /> Previous
   </Button>
   <span class="page-info">Page {page + 1}</span>
   <Button variant="outlined" size="sm" disabled={!hasNext} onclick={onnext}>
-    Next <ChevronRight size={13} />
+    Next <ChevronRight size={20} />
   </Button>
 </div>
 

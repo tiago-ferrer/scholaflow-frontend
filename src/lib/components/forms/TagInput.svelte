@@ -37,7 +37,7 @@
     <span class="tag">
       {tag}
       <button type="button" onclick={() => removeTag(tag)} aria-label="Remove {tag}">
-        <X size={10} />
+        <X size={16} />
       </button>
     </span>
   {/each}

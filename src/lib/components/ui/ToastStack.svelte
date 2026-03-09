@@ -9,7 +9,7 @@
 <div class="toast-stack" aria-live="polite">
   {#each $toast as t (t.id)}
     <div class="toast toast-{t.kind}" transition:fly={{ y: 20, duration: 200 }}>
-      <svelte:component this={icons[t.kind]} size={14} />
+      <svelte:component this={icons[t.kind]} size={23} />
       <span>{t.message}</span>
     </div>
   {/each}

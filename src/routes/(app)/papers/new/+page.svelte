@@ -119,7 +119,7 @@
 </div>
 
 <style>
-  .page { max-width: 720px; }
+  .page { max-width: 100%; }
   .page-header { margin-bottom: 24px; }
   .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
   .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }

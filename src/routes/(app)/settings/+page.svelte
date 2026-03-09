@@ -24,9 +24,9 @@
       </div>
       <button class="theme-toggle" onclick={toggleTheme}>
         {#if $theme === 'dark'}
-          <Sun size={14} /> Light
+          <Sun size={23} /> Light
         {:else}
-          <Moon size={14} /> Dark
+          <Moon size={23} /> Dark
         {/if}
       </button>
     </div>
@@ -34,7 +34,7 @@
 </div>
 
 <style>
-  .page { max-width: 600px; }
+  .page { max-width: 100%; }
   h1 { margin: 0 0 24px; font-size: 1.75rem; font-weight: 400; }
   .card { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
   .section-title { font-size: 1rem; font-weight: 500; margin: 0 0 16px; }

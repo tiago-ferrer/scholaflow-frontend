@@ -15,33 +15,33 @@
 <div class="page">
   <div class="page-header">
     <h1>Dashboard</h1>
-    <Button onclick={() => goto('/papers/new')}><Plus size={13} /> New Paper</Button>
+    <Button onclick={() => goto('/papers/new')}><Plus size={20} /> New Paper</Button>
   </div>
 
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-icon"><FileText size={19} /></div>
+      <div class="stat-icon"><FileText size={30} /></div>
       <div class="stat-body">
         <p class="stat-value">{data.recentPapers.length}</p>
         <p class="stat-label">Recent Papers</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon owner"><BookOpen size={19} /></div>
+      <div class="stat-icon owner"><BookOpen size={30} /></div>
       <div class="stat-body">
         <p class="stat-value">{ownerCount}</p>
         <p class="stat-label">As Owner</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon viewer"><Users size={19} /></div>
+      <div class="stat-icon viewer"><Users size={30} /></div>
       <div class="stat-body">
         <p class="stat-value">{viewerCount}</p>
         <p class="stat-label">Shared with me</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon keys"><Key size={19} /></div>
+      <div class="stat-icon keys"><Key size={30} /></div>
       <div class="stat-body">
         <p class="stat-value">{data.apiKeyCount}</p>
         <p class="stat-label">API Keys</p>
@@ -77,7 +77,7 @@
 </div>
 
 <style>
-  .page { max-width: 1100px; }
+  .page { max-width: 100%; }
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
   .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
 

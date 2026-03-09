@@ -38,7 +38,7 @@
     <tbody>
       {#if loading}
         <tr><td colspan={columns.length + (rowActions ? 1 : 0)} class="loading-cell">
-          <Spinner size={19} />
+          <Spinner size={30} />
         </td></tr>
       {:else if rows.length === 0}
         <tr><td colspan={columns.length + (rowActions ? 1 : 0)} class="empty-cell">

@@ -34,7 +34,7 @@
       <div class="header-actions">
         {#if headerActions}{@render headerActions()}{/if}
         <button class="close-btn" onclick={onclose} aria-label="Close">
-          <X size={16} />
+          <X size={25} />
         </button>
       </div>
     </div>
