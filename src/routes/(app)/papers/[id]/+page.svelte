@@ -33,11 +33,11 @@
 
   async function viewPdf(attach: Attachment) {
     loadingPdfId = attach.id
+    pdfUrl = null
     try {
-      const url = await papersApi.getDownloadUrl(paper.id, attach.id)
-      pdfUrl = url
+      pdfUrl = await papersApi.getDownloadUrl(paper.id, attach.id)
     } catch {
-      toast.error('Failed to load PDF')
+      toast.error('Failed to load file')
     } finally {
       loadingPdfId = null
     }
@@ -89,7 +89,7 @@
       const url = await papersApi.getDownloadUrl(paper.id, attach.id)
       window.open(url, '_blank')
     } catch {
-      toast.error('Failed to get download URL')
+      toast.error('Failed to download file')
     }
   }
 

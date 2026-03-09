@@ -25,7 +25,10 @@ export function makePapersApi(fetchFn?: typeof fetch) {
       const fd = new FormData(); fd.append('file', file)
       return a.upload<Paper>(`${BASE}/${id}/attachments`, fd)
     },
-    getDownloadUrl:   (id: string, attachId: string) => a.get<string>(`${BASE}/${id}/attachments/${attachId}/url`),
+    getDownloadUrl: async (id: string, attachId: string): Promise<string> => {
+      const res = await a.get<{ url: string }>(`${BASE}/${id}/attachments/${attachId}/url`)
+      return res.url
+    },
     deleteAttachment: (id: string, attachId: string) => a.delete<Paper>(`${BASE}/${id}/attachments/${attachId}`),
 
     listViewers:  (id: string)                          => a.get<Viewer[]>(`${BASE}/${id}/viewers`),
