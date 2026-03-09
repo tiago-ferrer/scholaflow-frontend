@@ -149,6 +149,11 @@ body {
 
 html {
   font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (max-width: 767px) {
+  html { font-size: 93.75%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

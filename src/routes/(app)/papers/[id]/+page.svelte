@@ -295,6 +295,11 @@
 
   .layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start; }
   @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+  @media (max-width: 767px) {
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .header-actions { width: 100%; justify-content: flex-end; }
+    .pdf-iframe { height: 60vh; min-height: 300px; }
+  }
 
   .card { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
   .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }

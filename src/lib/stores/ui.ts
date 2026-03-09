@@ -14,5 +14,9 @@ theme.subscribe(v => {
   }
 })
 
+export const sidebarMobileOpen = writable(false)
+
 export function toggleTheme() { theme.update(t => t === 'light' ? 'dark' : 'light') }
 export function toggleSidebar() { sidebarCollapsed.update(c => !c) }
+export function toggleMobileSidebar() { sidebarMobileOpen.update(v => !v) }
+export function closeMobileSidebar() { sidebarMobileOpen.set(false) }

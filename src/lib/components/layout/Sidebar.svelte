@@ -1,17 +1,21 @@
 <script lang="ts">
   import { page } from '$app/stores'
-  import { sidebarCollapsed, toggleSidebar } from '$lib/stores/ui'
+  import { sidebarCollapsed, toggleSidebar, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
   import { currentUser } from '$lib/stores/auth'
   import { NAV_SECTIONS } from '$lib/config/navigation'
   import { ChevronLeft, ChevronRight } from 'lucide-svelte'
   import Avatar from '$lib/components/ui/Avatar.svelte'
 
   const activeHref = $derived($page.url.pathname)
+
+  // Close mobile sidebar on navigation
+  $effect(() => { $page.url.pathname; closeMobileSidebar() })
 </script>
 
 <aside
   class="sidebar"
   class:collapsed={$sidebarCollapsed}
+  class:mobile-open={$sidebarMobileOpen}
   aria-label="Main navigation"
 >
   <div class="sidebar-header" class:collapsed={$sidebarCollapsed}>
@@ -44,7 +48,7 @@
           title={$sidebarCollapsed ? item.label : undefined}
           aria-current={active ? 'page' : undefined}
         >
-          <item.icon size={20} />
+          <item.icon size={$sidebarCollapsed ? 20 : 31} />
           {#if !$sidebarCollapsed}
             <span>{item.label}</span>
           {/if}
@@ -73,10 +77,21 @@
     background: var(--color-sidebar-bg);
     border-right: 1px solid var(--color-surface-3);
     display: flex; flex-direction: column;
-    transition: width var(--transition-sidebar);
+    transition: width var(--transition-sidebar), transform var(--transition-sidebar);
     overflow: hidden;
   }
   .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+
+  /* Tablet: force collapsed */
+  @media (max-width: 1024px) {
+    .sidebar { width: var(--sidebar-collapsed-width); }
+  }
+
+  /* Mobile: hidden off-screen, slide in when open */
+  @media (max-width: 767px) {
+    .sidebar { width: var(--sidebar-width); transform: translateX(-100%); }
+    .sidebar.mobile-open { transform: translateX(0); }
+  }
 
   .sidebar-header {
     height: var(--topbar-height);
@@ -88,13 +103,19 @@
     justify-content: center;
     padding: 0;
   }
+
+  /* On mobile the sidebar is always expanded, so show header normally */
+  @media (max-width: 767px) {
+    .sidebar-header.collapsed { justify-content: space-between; padding: 0 16px; }
+  }
+
   .product-brand { display: flex; flex-direction: column; gap: 1px; }
   .product-name { font-size: 20px; font-weight: 600; white-space: nowrap; }
   .product-tagline { font-size: 0.6rem; color: #545A62; letter-spacing: 0.05em; white-space: nowrap; }
-  .product-name-collapsed { font-size: 16px; font-weight: 600; white-space: nowrap; }
   .logo-paper { color: #447EE2; }
   .logo-hub   { color: #596772; }
   :global([data-theme="dark"]) .logo-hub { color: #ffffff; }
+
   .collapse-btn {
     display: flex; align-items: center; justify-content: center;
     width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
@@ -103,6 +124,11 @@
     flex-shrink: 0;
   }
   .collapse-btn:hover { background: var(--color-surface-2); }
+
+  /* Hide collapse button on mobile */
+  @media (max-width: 767px) {
+    .collapse-btn { display: none; }
+  }
 
   .sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
   .section-label {

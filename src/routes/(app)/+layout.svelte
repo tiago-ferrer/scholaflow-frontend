@@ -2,7 +2,7 @@
   import { page } from '$app/stores'
   import { fly } from 'svelte/transition'
   import { cubicOut } from 'svelte/easing'
-  import { sidebarCollapsed } from '$lib/stores/ui'
+  import { sidebarCollapsed, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
   import Sidebar from '$lib/components/layout/Sidebar.svelte'
   import TopBar from '$lib/components/layout/TopBar.svelte'
   import ToastStack from '$lib/components/ui/ToastStack.svelte'
@@ -14,10 +14,13 @@
 <div class="app-shell">
   <Sidebar />
 
+  {#if $sidebarMobileOpen}
+    <div class="mobile-backdrop" onclick={closeMobileSidebar} aria-hidden="true"></div>
+  {/if}
+
   <div
     class="main-area"
-    style:margin-left="{$sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)'}"
-    style:transition="margin-left var(--transition-sidebar)"
+    class:collapsed={$sidebarCollapsed}
   >
     <TopBar />
     {#key $page.url.pathname}
@@ -32,6 +35,32 @@
 
 <style>
   .app-shell { display: flex; min-height: 100vh; background: var(--color-surface-0); }
-  .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .main-area {
+    flex: 1; display: flex; flex-direction: column; min-width: 0;
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-sidebar);
+  }
+  .main-area.collapsed { margin-left: var(--sidebar-collapsed-width); }
+
+  /* Tablet: always show collapsed sidebar offset */
+  @media (max-width: 1024px) {
+    .main-area, .main-area.collapsed { margin-left: var(--sidebar-collapsed-width); }
+  }
+
+  /* Mobile: sidebar is overlay, no offset */
+  @media (max-width: 767px) {
+    .main-area, .main-area.collapsed { margin-left: 0; }
+  }
+
+  .mobile-backdrop {
+    position: fixed; inset: 0; z-index: 39;
+    background: rgba(0,0,0,0.4);
+  }
+
   .content { flex: 1; padding: 24px; overflow-y: auto; }
+
+  @media (max-width: 767px) {
+    .content { padding: 16px; }
+  }
 </style>

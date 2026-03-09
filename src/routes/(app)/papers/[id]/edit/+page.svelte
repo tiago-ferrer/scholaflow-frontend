@@ -143,19 +143,17 @@
           <textarea bind:value={abstract} rows={6}></textarea>
         </FormField>
       </div>
-      <div class="form-actions">
-        <Button variant="outlined" onclick={() => goto(`/papers/${id}`)}>Cancel</Button>
-        <Button type="submit" loading={saving}>Save Changes</Button>
-      </div>
     </form>
   {/if}
 </div>
 
 <style>
   .page { max-width: 100%; }
-  .page-header { margin-bottom: 24px; }
-  .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; display: block; margin-bottom: 8px; }
-  .page-header h1 { margin: 0; font-size: 1.75rem; font-weight: 400; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
+  .header-left { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .back-link { font-size: 0.875rem; color: var(--color-primary); text-decoration: none; }
+  .page-header h1 { margin: 0; font-size: 1.375rem; font-weight: 500; line-height: 1.3; }
   .loading { display: flex; justify-content: center; padding: 80px; }
 
   .form { background: var(--color-surface-0); border: 1px solid var(--color-surface-3); border-radius: 12px; padding: 28px; }
@@ -169,5 +167,4 @@
   }
   :global(.form textarea:focus) { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
 
-  .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--color-surface-3); }
 </style>
