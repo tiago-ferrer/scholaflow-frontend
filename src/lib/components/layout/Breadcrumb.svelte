@@ -4,13 +4,14 @@
   import type { Paper } from '$lib/types/paper'
   import type { Notebook, NotebookPost } from '$lib/types/notebook'
   import type { KanbanBoard } from '$lib/types/kanban'
+  import type { TranscriptionGroup, Transcription } from '$lib/types/transcription'
 
   function truncate(text: string, max = 24): string {
     return text.length > max ? text.slice(0, max).trimEnd() + '…' : text
   }
 
   function labelFor(part: string): string {
-    const data = $page.data as { paper?: Paper; notebook?: Notebook; post?: NotebookPost; board?: KanbanBoard }
+    const data = $page.data as { paper?: Paper; notebook?: Notebook; post?: NotebookPost; board?: KanbanBoard; group?: TranscriptionGroup; transcription?: Transcription }
 
     if (data.paper && part === data.paper.id) {
       const firstAuthor = data.paper.authors[0]?.split(' ').pop() ?? ''
@@ -24,6 +25,14 @@
 
     if (data.board && part === data.board.id) {
       return truncate(data.board.title)
+    }
+
+    if (data.group && part === data.group.id) {
+      return truncate(data.group.name)
+    }
+
+    if (data.transcription && part === data.transcription.id) {
+      return truncate(data.transcription.name)
     }
 
     if (data.post && part === data.post.id) {

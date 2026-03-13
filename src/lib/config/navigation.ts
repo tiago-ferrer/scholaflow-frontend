@@ -1,4 +1,4 @@
-import { FileText, Key, KanbanSquare, LayoutDashboard, NotebookPen, Settings } from 'lucide-svelte'
+import { FileText, Key, KanbanSquare, LayoutDashboard, Mic, NotebookPen, Settings } from 'lucide-svelte'
 
 export interface NavItem {
   label: string
@@ -26,6 +26,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Papers', href: '/papers', icon: FileText },
       { label: 'Notebooks', href: '/notebooks', icon: NotebookPen },
       { label: 'Kanban', href: '/kanban', icon: KanbanSquare },
+      { label: 'Transcription', href: '/transcription', icon: Mic },
     ],
   },
   {

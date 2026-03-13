@@ -1,15 +1,20 @@
 <script lang="ts">
   import { page } from '$app/stores'
+  import { onMount } from 'svelte'
   import { sidebarCollapsed, toggleSidebar, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
   import { currentUser } from '$lib/stores/auth'
   import { NAV_SECTIONS } from '$lib/config/navigation'
-  import { ChevronLeft, ChevronRight } from 'lucide-svelte'
+  import { transcriptionGroups, refreshTranscriptionGroups } from '$lib/stores/transcriptionGroups'
+  import { ChevronLeft, ChevronRight, Plus } from 'lucide-svelte'
   import Avatar from '$lib/components/ui/Avatar.svelte'
 
   const activeHref = $derived($page.url.pathname)
+  const visibleGroups = $derived($transcriptionGroups.filter(g => !g.deleted))
 
   // Close mobile sidebar on navigation
   $effect(() => { $page.url.pathname; closeMobileSidebar() })
+
+  onMount(() => { refreshTranscriptionGroups() })
 </script>
 
 <aside
@@ -56,6 +61,24 @@
             <span class="badge">{item.badge}</span>
           {/if}
         </a>
+        {#if item.href === '/transcription' && !$sidebarCollapsed}
+          {#each visibleGroups as group}
+            {@const groupActive = activeHref.startsWith(`/transcription/${group.id}`)}
+            <a
+              href="/transcription/{group.id}"
+              class="nav-item nav-subitem"
+              class:active={groupActive}
+              aria-current={groupActive ? 'page' : undefined}
+            >
+              <span class="subitem-dot">·</span>
+              <span>{group.name}</span>
+            </a>
+          {/each}
+          <a href="/transcription/new" class="nav-item nav-subitem nav-subitem-new">
+            <Plus size={14} />
+            <span>New group</span>
+          </a>
+        {/if}
       {/each}
     {/each}
   </nav>
@@ -146,6 +169,26 @@
     margin-left: auto; background: var(--color-primary); color: white;
     font-size: 0.6875rem; font-weight: 600; padding: 2px 7px; border-radius: 10px;
   }
+
+  .nav-subitem {
+    padding: 7px 16px 7px 32px;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+  }
+  .nav-subitem.active {
+    background: var(--color-sidebar-active);
+    color: var(--color-sidebar-active-text);
+    font-weight: 500;
+  }
+  .subitem-dot {
+    font-size: 1rem; line-height: 1; color: var(--color-text-disabled); flex-shrink: 0;
+  }
+  .nav-subitem-new {
+    color: var(--color-text-disabled);
+    font-size: 0.75rem;
+  }
+  .nav-subitem-new:hover { color: var(--color-primary); }
   .sidebar-footer {
     padding: 12px 16px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
   }
