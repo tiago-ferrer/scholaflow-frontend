@@ -6,17 +6,35 @@
   import { NAV_SECTIONS } from '$lib/config/navigation'
   import { transcriptionGroups, refreshTranscriptionGroups } from '$lib/stores/transcriptionGroups'
 import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
+  import { kanbanBoards, refreshKanbanBoards } from '$lib/stores/kanbanBoards'
   import { ChevronLeft, ChevronRight, Plus } from 'lucide-svelte'
   import Avatar from '$lib/components/ui/Avatar.svelte'
 
   const activeHref = $derived($page.url.pathname)
   const visibleGroups = $derived($transcriptionGroups.filter(g => !g.deleted))
   const visibleNotebooks = $derived($notebooks.filter(n => !n.deleted))
+  const visibleBoards = $derived($kanbanBoards.filter(b => !b.deleted))
+
+  let notebooksExpanded = $state(false)
+  let transcriptionExpanded = $state(false)
+  let kanbanExpanded = $state(false)
 
   // Close mobile sidebar on navigation
   $effect(() => { $page.url.pathname; closeMobileSidebar() })
 
-  onMount(() => { refreshTranscriptionGroups(); refreshNotebooks() })
+  onMount(() => { refreshTranscriptionGroups(); refreshNotebooks(); refreshKanbanBoards() })
+
+  function toggleNotebooks() {
+    notebooksExpanded = !notebooksExpanded
+  }
+
+  function toggleTranscriptions() {
+      transcriptionExpanded = !transcriptionExpanded
+  }
+
+  function toggleKanban() {
+    kanbanExpanded = !kanbanExpanded
+  }
 </script>
 
 <aside
@@ -48,22 +66,68 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
       {/if}
       {#each section.items as item}
         {@const active = activeHref.startsWith(item.href)}
-        <a
-          href={item.href}
-          class="nav-item"
-          class:active
-          title={$sidebarCollapsed ? item.label : undefined}
-          aria-current={active ? 'page' : undefined}
-        >
-          <item.icon size={$sidebarCollapsed ? 20 : 20} />
-          {#if !$sidebarCollapsed}
-            <span>{item.label}</span>
+        <div class="nav-item-wrapper" class:has-submenu={item.href === '/notebooks' || item.href === '/transcription' || item.href === '/kanban'}>
+          <a
+            href={item.href}
+            class="nav-item"
+            class:active
+            title={$sidebarCollapsed ? item.label : undefined}
+            aria-current={active ? 'page' : undefined}
+          >
+            <item.icon size={$sidebarCollapsed ? 20 : 20} />
+            {#if !$sidebarCollapsed}
+              <span>{item.label}</span>
+            {/if}
+            {#if item.badge && !$sidebarCollapsed}
+              <span class="badge">{item.badge}</span>
+            {/if}
+          </a>
+          {#if item.href === '/notebooks' && !$sidebarCollapsed}
+            <button
+              class="submenu-toggle"
+              onclick={toggleNotebooks}
+              aria-label={notebooksExpanded ? 'Collapse notebooks' : 'Expand notebooks'}
+              title={notebooksExpanded ? 'Collapse' : 'Expand'}
+            >
+              <ChevronRight size={18} class={notebooksExpanded ? 'rotated' : ''} />
+            </button>
           {/if}
-          {#if item.badge && !$sidebarCollapsed}
-            <span class="badge">{item.badge}</span>
+          {#if item.href === '/transcription' && !$sidebarCollapsed}
+            <button
+              class="submenu-toggle"
+              onclick={toggleTranscriptions}
+              aria-label={transcriptionExpanded ? 'Collapse transcription' : 'Expand transcription'}
+              title={transcriptionExpanded ? 'Collapse' : 'Expand'}
+            >
+              <ChevronRight size={18} class={transcriptionExpanded ? 'rotated' : ''} />
+            </button>
           {/if}
-        </a>
-        {#if item.href === '/transcription' && !$sidebarCollapsed}
+          {#if item.href === '/kanban' && !$sidebarCollapsed}
+            <button
+              class="submenu-toggle"
+              onclick={toggleKanban}
+              aria-label={kanbanExpanded ? 'Collapse kanban' : 'Expand kanban'}
+              title={kanbanExpanded ? 'Collapse' : 'Expand'}
+            >
+              <ChevronRight size={18} class={kanbanExpanded ? 'rotated' : ''} />
+            </button>
+          {/if}
+        </div>
+        {#if item.href === '/kanban' && !$sidebarCollapsed && kanbanExpanded}
+          {#each visibleBoards as board}
+            {@const boardActive = activeHref.startsWith(`/kanban/${board.id}`)}
+            <a
+              href="/kanban/{board.id}"
+              class="nav-item nav-subitem"
+              class:active={boardActive}
+              aria-current={boardActive ? 'page' : undefined}
+            >
+              <span class="subitem-dot">·</span>
+              <span>{board.title}</span>
+            </a>
+          {/each}
+        {/if}
+        {#if item.href === '/transcription' && !$sidebarCollapsed && transcriptionExpanded}
           {#each visibleGroups as group}
             {@const groupActive = activeHref.startsWith(`/transcription/${group.id}`)}
             <a
@@ -81,7 +145,7 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
             <span>New group</span>
           </a>
         {/if}
-        {#if item.href === '/notebooks' && !$sidebarCollapsed}
+        {#if item.href === '/notebooks' && !$sidebarCollapsed && notebooksExpanded}
           {#each visibleNotebooks as nb}
             {@const nbActive = activeHref.startsWith(`/notebooks/${nb.id}`)}
             <a
@@ -185,6 +249,29 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
     background: var(--color-sidebar-active);
     color: var(--color-sidebar-active-text);
   }
+
+  .nav-item-wrapper {
+    display: flex; align-items: center; position: relative;
+  }
+  .nav-item-wrapper.has-submenu .nav-item {
+    flex: 1;
+  }
+
+  .submenu-toggle {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; margin-right: 8px; border: none;
+    background: transparent; cursor: pointer; color: var(--color-text-secondary);
+    transition: color var(--transition-standard), transform var(--transition-standard);
+    flex-shrink: 0;
+  }
+  .submenu-toggle:hover { color: var(--color-text-primary); }
+  .submenu-toggle :global(svg) {
+    transition: transform var(--transition-standard);
+  }
+  .submenu-toggle :global(svg.rotated) {
+    transform: rotate(90deg);
+  }
+
   .badge {
     margin-left: auto; background: var(--color-primary); color: white;
     font-size: 0.6875rem; font-weight: 600; padding: 2px 7px; border-radius: 10px;
