@@ -73,7 +73,7 @@
   </div>
 
   {#if data.apiKeys.length === 0}
-    <EmptyState title="No API keys" message="Create an API key to access PaperHub via the MCP interface.">
+    <EmptyState title="No API keys" message="Create an API key to access ScholaFlow via the MCP interface.">
       {#snippet actions()}
         <Button onclick={() => createOpen = true}><Plus size={20} /> New API Key</Button>
       {/snippet}

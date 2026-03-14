@@ -15,14 +15,14 @@
 <div class="page">
   <div class="page-header">
     <h1>MCP Integration Guide</h1>
-    <p class="page-subtitle">Install and configure PaperHub MCP server with your AI tools</p>
+    <p class="page-subtitle">Install and configure ScholaFlow MCP server with your AI tools</p>
   </div>
 
   <section class="section">
     <h2>What is MCP?</h2>
     <p>
       Model Context Protocol (MCP) is a standard that allows AI applications to access external tools and data sources.
-      PaperHub's MCP server gives Claude, ChatGPT, Copilot, and other AI tools access to your research library,
+      ScholaFlow's MCP server gives Claude, ChatGPT, Copilot, and other AI tools access to your research library,
       notebooks, papers, and transcriptions.
     </p>
   </section>
@@ -88,8 +88,8 @@
         <h3>Step 2: Set Environment Variable</h3>
         <p>Store your API key as an environment variable for secure access:</p>
         <div class="code-snippet">
-          <code>export PAPERHUB_MCP_APIKEY="your_api_key_here"</code>
-          <button class="copy-code-btn" onclick={() => copyToClipboard('export PAPERHUB_MCP_APIKEY="your_api_key_here"', 10)}>
+          <code>export SCHOLAFLOW_MCP_APIKEY="your_api_key_here"</code>
+          <button class="copy-code-btn" onclick={() => copyToClipboard('export SCHOLAFLOW_MCP_APIKEY="your_api_key_here"', 10)}>
             {#if copiedIndex === 10}
               <Check size={16} />
             {:else}
@@ -99,8 +99,8 @@
         </div>
         <p><strong>Or on Windows (PowerShell):</strong></p>
         <div class="code-snippet">
-          <code>$env:PAPERHUB_MCP_APIKEY="your_api_key_here"</code>
-          <button class="copy-code-btn" onclick={() => copyToClipboard('$env:PAPERHUB_MCP_APIKEY="your_api_key_here"', 11)}>
+          <code>$env:SCHOLAFLOW_MCP_APIKEY="your_api_key_here"</code>
+          <button class="copy-code-btn" onclick={() => copyToClipboard('$env:SCHOLAFLOW_MCP_APIKEY="your_api_key_here"', 11)}>
             {#if copiedIndex === 11}
               <Check size={16} />
             {:else}
@@ -127,8 +127,8 @@
         <p><strong>Option 1: Using Claude CLI</strong></p>
         <p>If you have the Claude CLI installed:</p>
         <div class="code-snippet">
-          <code>claude mcp add paperhub https://mcp-paperhub.tferrer.dev/mcp --scope user --transport http --header "X-Api-Key: ${"{PAPERHUB_MCP_APIKEY}"}"</code>
-          <button class="copy-code-btn" onclick={() => copyToClipboard('claude mcp add paperhub https://mcp-paperhub.tferrer.dev/mcp --scope user --transport http --header "X-Api-Key: ${PAPERHUB_MCP_APIKEY}"', 0)}>
+          <code>claude mcp add scholaflow https://mcp-scholaflow.tferrer.dev/mcp --scope user --transport http --header "X-Api-Key: ${"{SCHOLAFLOW_MCP_APIKEY}"}"</code>
+          <button class="copy-code-btn" onclick={() => copyToClipboard('claude mcp add scholaflow https://mcp-scholaflow.tferrer.dev/mcp --scope user --transport http --header "X-Api-Key: ${SCHOLAFLOW_MCP_APIKEY}"', 0)}>
             {#if copiedIndex === 0}
               <Check size={16} />
             {:else}
@@ -153,22 +153,22 @@
         <div class="code-snippet">
           <code>{`{
   "mcpServers": {
-    "paperhub": {
-      "url": "https://mcp-paperhub.tferrer.dev/mcp",
+    "scholaflow": {
+      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
       "transport": "http",
       "headers": {
-        "X-Api-Key": "${"${PAPERHUB_MCP_APIKEY}"}"
+        "X-Api-Key": "${"${SCHOLAFLOW_MCP_APIKEY}"}"
       }
     }
   }
 }`}</code>
           <button class="copy-code-btn" onclick={() => copyToClipboard(`{
   "mcpServers": {
-    "paperhub": {
-      "url": "https://mcp-paperhub.tferrer.dev/mcp",
+    "scholaflow": {
+      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
       "transport": "http",
       "headers": {
-        "X-Api-Key": "\${PAPERHUB_MCP_APIKEY}"
+        "X-Api-Key": "\${SCHOLAFLOW_MCP_APIKEY}"
       }
     }
   }
@@ -193,10 +193,10 @@
         <p><strong>Add the MCP server with a single command:</strong></p>
 
         <div class="code-snippet">
-          <code>copilot config set mcp_server.paperhub.url https://mcp-paperhub.tferrer.dev/mcp</code>
+          <code>copilot config set mcp_server.scholaflow.url https://mcp-scholaflow.tferrer.dev/mcp</code>
           <button
             class="copy-code-btn"
-            onclick={() => copyToClipboard('copilot config set mcp_server.paperhub.url https://mcp-paperhub.tferrer.dev/mcp', 1)}
+            onclick={() => copyToClipboard('copilot config set mcp_server.scholaflow.url https://mcp-scholaflow.tferrer.dev/mcp', 1)}
           >
             {#if copiedIndex === 1}
               <Check size={16} />
@@ -207,10 +207,10 @@
         </div>
 
         <div class="code-snippet">
-          <code>copilot config set mcp_server.paperhub.transport http</code>
+          <code>copilot config set mcp_server.scholaflow.transport http</code>
           <button
             class="copy-code-btn"
-            onclick={() => copyToClipboard('copilot config set mcp_server.paperhub.transport http', 12)}
+            onclick={() => copyToClipboard('copilot config set mcp_server.scholaflow.transport http', 12)}
           >
             {#if copiedIndex === 12}
               <Check size={16} />
@@ -221,10 +221,10 @@
         </div>
 
         <div class="code-snippet">
-          <code>copilot config set mcp_server.paperhub.headers.X-Api-Key ${"{PAPERHUB_MCP_APIKEY}"}</code>
+          <code>copilot config set mcp_server.scholaflow.headers.X-Api-Key ${"{SCHOLAFLOW_MCP_APIKEY}"}</code>
           <button
             class="copy-code-btn"
-            onclick={() => copyToClipboard('copilot config set mcp_server.paperhub.headers.X-Api-Key ${PAPERHUB_MCP_APIKEY}', 2)}
+            onclick={() => copyToClipboard('copilot config set mcp_server.scholaflow.headers.X-Api-Key ${SCHOLAFLOW_MCP_APIKEY}', 2)}
           >
             {#if copiedIndex === 2}
               <Check size={16} />
@@ -241,19 +241,19 @@
 
         <div class="code-snippet">
           <code>{`mcp_servers:
-  paperhub:
-    url: https://mcp-paperhub.tferrer.dev/mcp
+  scholaflow:
+    url: https://mcp-scholaflow.tferrer.dev/mcp
     transport: http
     headers:
-      X-Api-Key: \${PAPERHUB_MCP_APIKEY}`}</code>
+      X-Api-Key: \${SCHOLAFLOW_MCP_APIKEY}`}</code>
           <button
             class="copy-code-btn"
             onclick={() => copyToClipboard(`mcp_servers:
-  paperhub:
-    url: https://mcp-paperhub.tferrer.dev/mcp
+  scholaflow:
+    url: https://mcp-scholaflow.tferrer.dev/mcp
     transport: http
     headers:
-      X-Api-Key: \${PAPERHUB_MCP_APIKEY}`, 13)}
+      X-Api-Key: \${SCHOLAFLOW_MCP_APIKEY}`, 13)}
           >
             {#if copiedIndex === 13}
               <Check size={16} />
@@ -291,11 +291,11 @@
         <div class="code-snippet">
           <code>{`{
   "mcpServers": {
-    "paperhub": {
-      "url": "https://mcp-paperhub.tferrer.dev/mcp",
+    "scholaflow": {
+      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
       "transport": "http",
       "headers": {
-        "X-Api-Key": "\${PAPERHUB_MCP_APIKEY}"
+        "X-Api-Key": "\${SCHOLAFLOW_MCP_APIKEY}"
       }
     }
   }
@@ -304,11 +304,11 @@
             class="copy-code-btn"
             onclick={() => copyToClipboard(`{
   "mcpServers": {
-    "paperhub": {
-      "url": "https://mcp-paperhub.tferrer.dev/mcp",
+    "scholaflow": {
+      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
       "transport": "http",
       "headers": {
-        "X-Api-Key": "\${PAPERHUB_MCP_APIKEY}"
+        "X-Api-Key": "\${SCHOLAFLOW_MCP_APIKEY}"
       }
     }
   }
@@ -338,20 +338,20 @@
 
         <p><strong>Add this configuration:</strong></p>
         <div class="code-snippet">
-          <code>{`[mcp_servers.paperhub]
-url = "https://mcp-paperhub.tferrer.dev/mcp"
+          <code>{`[mcp_servers.scholaflow]
+url = "https://mcp-scholaflow.tferrer.dev/mcp"
 transport = "http"
 
-[mcp_servers.paperhub.headers]
-X-Api-Key = "\${PAPERHUB_MCP_APIKEY}"`}</code>
+[mcp_servers.scholaflow.headers]
+X-Api-Key = "\${SCHOLAFLOW_MCP_APIKEY}"`}</code>
           <button
             class="copy-code-btn"
-            onclick={() => copyToClipboard(`[mcp_servers.paperhub]
-url = "https://mcp-paperhub.tferrer.dev/mcp"
+            onclick={() => copyToClipboard(`[mcp_servers.scholaflow]
+url = "https://mcp-scholaflow.tferrer.dev/mcp"
 transport = "http"
 
-[mcp_servers.paperhub.headers]
-X-Api-Key = "\${PAPERHUB_MCP_APIKEY}"`, 5)}
+[mcp_servers.scholaflow.headers]
+X-Api-Key = "\${SCHOLAFLOW_MCP_APIKEY}"`, 5)}
           >
             {#if copiedIndex === 5}
               <Check size={16} />
@@ -382,10 +382,10 @@ X-Api-Key = "\${PAPERHUB_MCP_APIKEY}"`, 5)}
         <div class="code-snippet">
           <code>{`openapi: 3.1.0
 info:
-  title: PaperHub MCP
+  title: ScholaFlow MCP
   version: 1.0.0
 servers:
-  - url: https://mcp-paperhub.tferrer.dev/mcp
+  - url: https://mcp-scholaflow.tferrer.dev/mcp
 
 components:
   securitySchemes:
@@ -422,10 +422,10 @@ paths:
             class="copy-code-btn"
             onclick={() => copyToClipboard(`openapi: 3.1.0
 info:
-  title: PaperHub MCP
+  title: ScholaFlow MCP
   version: 1.0.0
 servers:
-  - url: https://mcp-paperhub.tferrer.dev/mcp
+  - url: https://mcp-scholaflow.tferrer.dev/mcp
 
 components:
   securitySchemes:
@@ -474,7 +474,7 @@ paths:
           <li>Header: <code>X-Api-Key</code></li>
         </ul>
 
-        <p>Your GPT can now access PaperHub tools and manage your research library!</p>
+        <p>Your GPT can now access ScholaFlow tools and manage your research library!</p>
       </div>
     </div>
   </section>
@@ -482,10 +482,10 @@ paths:
   <section class="section">
     <h2>MCP Server Details</h2>
     <div class="server-info">
-      <p><strong>URL:</strong> <code>https://mcp-paperhub.tferrer.dev/mcp</code></p>
+      <p><strong>URL:</strong> <code>https://mcp-scholaflow.tferrer.dev/mcp</code></p>
       <p><strong>Transport:</strong> HTTP</p>
       <p><strong>Authentication:</strong> <code>X-Api-Key</code> header</p>
-      <p><strong>Environment Variable:</strong> <code>PAPERHUB_MCP_APIKEY</code></p>
+      <p><strong>Environment Variable:</strong> <code>SCHOLAFLOW_MCP_APIKEY</code></p>
     </div>
   </section>
 
@@ -508,7 +508,7 @@ paths:
 
     <p><strong>Troubleshooting:</strong></p>
     <ul>
-      <li>Ensure your API key is stored in the <code>PAPERHUB_MCP_APIKEY</code> environment variable</li>
+      <li>Ensure your API key is stored in the <code>SCHOLAFLOW_MCP_APIKEY</code> environment variable</li>
       <li>Verify the header <code>X-Api-Key</code> is set correctly in your configuration</li>
       <li>Check that your API key has "Owner" privilege for full functionality</li>
       <li>Make sure you've restarted your AI tool after configuration changes</li>
@@ -540,7 +540,7 @@ paths:
     <div class="faq-item">
       <h3>Is there a Docker setup?</h3>
       <p>
-        Yes. Use the official PaperHub MCP server Docker image and pass environment variables for API credentials.
+        Yes. Use the official ScholaFlow MCP server Docker image and pass environment variables for API credentials.
       </p>
     </div>
 
