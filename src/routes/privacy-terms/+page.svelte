@@ -88,7 +88,7 @@
     <p>Updates are posted on this page with notification via email or prominent notice. Changes are effective when posted.</p>
 
     <h2>Contact Us</h2>
-    <p>Questions may be directed to: <a href="mailto:support@scholaflow.com">support@scholaflow.com</a></p>
+    <p>Questions may be directed to: <a href="mailto:contato@scholaflow.com">contato@scholaflow.com</a></p>
   </div>
 </div>
 
