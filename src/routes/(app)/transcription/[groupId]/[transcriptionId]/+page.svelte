@@ -7,6 +7,7 @@
   import type { TranscriptionNote } from '$lib/types/transcription'
   import Button from '$lib/components/ui/Button.svelte'
   import FormField from '$lib/components/forms/FormField.svelte'
+  import LanguageSelector from '$lib/components/forms/LanguageSelector.svelte'
   import Spinner from '$lib/components/ui/Spinner.svelte'
   import MarkdownContent from '$lib/components/ui/MarkdownContent.svelte'
   import ConfirmDialog from '$lib/components/dialogs/ConfirmDialog.svelte'
@@ -100,13 +101,16 @@
 
   // ── Retry transcription ────────────────────────────────────────────────────
   let retrying = $state(false)
+  let retryLanguage = $state(transcription.audio_language || '')
+  let showRetryLanguage = $state(false)
 
   async function retryTranscription() {
     retrying = true
     try {
-      await transcriptionApi.triggerTranscription(transcription.group_id, transcription.id)
+      await transcriptionApi.triggerTranscription(transcription.group_id, transcription.id, retryLanguage || undefined)
       const updated = await transcriptionApi.getTranscription(transcription.group_id, transcription.id)
       transcription = updated
+      showRetryLanguage = false
       toast.info('Transcription started')
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : 'Failed to retry')
@@ -322,6 +326,9 @@
       <div class="rec-meta">
         <span class="rec-name">{transcription.name}</span>
         <span class="rec-date-label">{transcription.date}</span>
+        {#if transcription.audio_language}
+          <span class="rec-language">Language: {transcription.audio_language}</span>
+        {/if}
       </div>
     {/if}
 
@@ -390,9 +397,19 @@
           <pre class="transcript-text">{transcription.transcript_text}</pre>
         {:else if transcription.transcript_status === 'FAILED'}
           <p class="transcript-msg error">Transcription failed.</p>
-          <Button size="sm" loading={retrying} onclick={retryTranscription}>
-            <RotateCcw size={16} /> Retry
-          </Button>
+          {#if showRetryLanguage}
+            <form onsubmit={(e) => { e.preventDefault(); retryTranscription() }} class="retry-form">
+              <LanguageSelector bind:value={retryLanguage} />
+              <div class="retry-actions">
+                <Button variant="outlined" size="sm" type="button" onclick={() => showRetryLanguage = false}>Cancel</Button>
+                <Button size="sm" loading={retrying} type="submit">Retry</Button>
+              </div>
+            </form>
+          {:else}
+            <Button size="sm" loading={retrying} onclick={() => showRetryLanguage = true}>
+              <RotateCcw size={16} /> Retry
+            </Button>
+          {/if}
         {/if}
       </div>
     {/if}
@@ -613,6 +630,11 @@
   .rec-meta { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; }
   .rec-name { font-size: 1rem; font-weight: 500; }
   .rec-date-label { font-size: 0.8125rem; color: var(--color-text-secondary); }
+  .rec-language { font-size: 0.8125rem; color: var(--color-text-disabled); }
+
+  /* Retry form */
+  .retry-form { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  .retry-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
   /* Meta edit form */
   .meta-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }

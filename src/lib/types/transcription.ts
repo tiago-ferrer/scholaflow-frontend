@@ -24,6 +24,7 @@ export interface Transcription {
   group_id: string
   name: string
   date: string
+  audio_language: string | null
   transcript_text: string | null
   transcript_status: TranscriptStatus
   audio_attachment: AudioAttachment | null

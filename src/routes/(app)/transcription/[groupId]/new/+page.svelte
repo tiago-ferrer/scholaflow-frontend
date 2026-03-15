@@ -6,17 +6,19 @@
   import { toast } from '$lib/stores/toast'
   import Button from '$lib/components/ui/Button.svelte'
   import FormField from '$lib/components/forms/FormField.svelte'
+  import LanguageSelector from '$lib/components/forms/LanguageSelector.svelte'
 
   let { data }: { data: PageData } = $props()
   let group = $derived(data.group)
 
   const MAX_BYTES = 100 * 1024 * 1024 // 100 MB
 
-  let name    = $state('')
-  let date    = $state(new Date().toISOString().slice(0, 10))
-  let file    = $state<File | null>(null)
-  let saving  = $state(false)
-  let errors  = $state<Record<string, string>>({})
+  let name     = $state('')
+  let date     = $state(new Date().toISOString().slice(0, 10))
+  let file     = $state<File | null>(null)
+  let language = $state('')
+  let saving   = $state(false)
+  let errors   = $state<Record<string, string>>({})
 
   function handleFile(e: Event) {
     const input = e.currentTarget as HTMLInputElement
@@ -53,9 +55,9 @@
 
       const transcription = await transcriptionApi.createTranscription(group.id, fd)
 
-      // Immediately trigger AI transcription (fire-and-forget — 202 Accepted)
+      // Immediately trigger AI transcription with optional language (fire-and-forget — 202 Accepted)
       try {
-        await transcriptionApi.triggerTranscription(group.id, transcription.id)
+        await transcriptionApi.triggerTranscription(group.id, transcription.id, language || undefined)
       } catch {
         // Non-fatal — user can retry from the detail page
       }
@@ -89,6 +91,8 @@
       <FormField label="Audio file" required error={errors.audio} hint="Accepts audio files up to 100 MB">
         <input type="file" accept=".aac,.amr,.flac,.m4a,.mp3,.mp4,.ogg,.opus,.pcm,.wav,.webm,audio/*" onchange={handleFile} />
       </FormField>
+
+      <LanguageSelector bind:value={language} />
     </div>
 
     <div class="form-actions">

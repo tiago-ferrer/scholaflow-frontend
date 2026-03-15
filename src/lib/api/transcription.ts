@@ -44,9 +44,12 @@ export function makeTranscriptionApi(fetchFn?: typeof fetch) {
       return a.patch<Transcription>(`${BASE}/${groupId}/transcriptions/${id}?${q}`, {})
     },
     removeTranscription: (groupId: string, id: string)          => a.delete<void>(`${BASE}/${groupId}/transcriptions/${id}`),
-    triggerTranscription: async (groupId: string, id: string): Promise<void> => {
+    triggerTranscription: async (groupId: string, id: string, language?: string): Promise<void> => {
       try {
-        await a.post<Record<string, unknown>>(`${BASE}/${groupId}/transcriptions/${id}/transcribe`, {})
+        const params = new URLSearchParams()
+        if (language) params.append('language', language)
+        const url = `${BASE}/${groupId}/transcriptions/${id}/transcribe${params.toString() ? `?${params}` : ''}`
+        await a.post<Record<string, unknown>>(url, {})
       } catch (e) {
         if (e instanceof SyntaxError) return // 202 with empty body
         throw e
