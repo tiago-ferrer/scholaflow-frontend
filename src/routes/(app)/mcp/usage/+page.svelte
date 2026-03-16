@@ -127,8 +127,8 @@
         <p><strong>Option 1: Using Claude CLI</strong></p>
         <p>If you have the Claude CLI installed:</p>
         <div class="code-snippet">
-          <code>claude mcp add scholaflow https://mcp-scholaflow.tferrer.dev/mcp --scope user --transport http --header "X-Api-Key: ${"{SCHOLAFLOW_MCP_APIKEY}"}"</code>
-          <button class="copy-code-btn" onclick={() => copyToClipboard('claude mcp add scholaflow https://mcp-scholaflow.tferrer.dev/mcp --scope user --transport http --header "X-Api-Key: ${SCHOLAFLOW_MCP_APIKEY}"', 0)}>
+          <code>claude mcp add scholaflow https://mcp.scholaflow.com/mcp --scope user --transport http --header "X-Api-Key: ${"{SCHOLAFLOW_MCP_APIKEY}"}"</code>
+          <button class="copy-code-btn" onclick={() => copyToClipboard('claude mcp add scholaflow https://mcp.scholaflow.com/mcp --scope user --transport http --header "X-Api-Key: ${SCHOLAFLOW_MCP_APIKEY}"', 0)}>
             {#if copiedIndex === 0}
               <Check size={16} />
             {:else}
@@ -154,7 +154,7 @@
           <code>{`{
   "mcpServers": {
     "scholaflow": {
-      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
+      "url": "https://mcp.scholaflow.com/mcp",
       "transport": "http",
       "headers": {
         "X-Api-Key": "${"${SCHOLAFLOW_MCP_APIKEY}"}"
@@ -165,7 +165,7 @@
           <button class="copy-code-btn" onclick={() => copyToClipboard(`{
   "mcpServers": {
     "scholaflow": {
-      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
+      "url": "https://mcp.scholaflow.com/mcp",
       "transport": "http",
       "headers": {
         "X-Api-Key": "\${SCHOLAFLOW_MCP_APIKEY}"
@@ -193,10 +193,10 @@
         <p><strong>Add the MCP server with a single command:</strong></p>
 
         <div class="code-snippet">
-          <code>copilot config set mcp_server.scholaflow.url https://mcp-scholaflow.tferrer.dev/mcp</code>
+          <code>copilot config set mcp_server.scholaflow.url https://mcp.scholaflow.com/mcp</code>
           <button
             class="copy-code-btn"
-            onclick={() => copyToClipboard('copilot config set mcp_server.scholaflow.url https://mcp-scholaflow.tferrer.dev/mcp', 1)}
+            onclick={() => copyToClipboard('copilot config set mcp_server.scholaflow.url https://mcp.scholaflow.com/mcp', 1)}
           >
             {#if copiedIndex === 1}
               <Check size={16} />
@@ -242,7 +242,7 @@
         <div class="code-snippet">
           <code>{`mcp_servers:
   scholaflow:
-    url: https://mcp-scholaflow.tferrer.dev/mcp
+    url: https://mcp.scholaflow.com/mcp
     transport: http
     headers:
       X-Api-Key: \${SCHOLAFLOW_MCP_APIKEY}`}</code>
@@ -250,7 +250,7 @@
             class="copy-code-btn"
             onclick={() => copyToClipboard(`mcp_servers:
   scholaflow:
-    url: https://mcp-scholaflow.tferrer.dev/mcp
+    url: https://mcp.scholaflow.com/mcp
     transport: http
     headers:
       X-Api-Key: \${SCHOLAFLOW_MCP_APIKEY}`, 13)}
@@ -292,7 +292,7 @@
           <code>{`{
   "mcpServers": {
     "scholaflow": {
-      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
+      "url": "https://mcp.scholaflow.com/mcp",
       "transport": "http",
       "headers": {
         "X-Api-Key": "\${SCHOLAFLOW_MCP_APIKEY}"
@@ -305,7 +305,7 @@
             onclick={() => copyToClipboard(`{
   "mcpServers": {
     "scholaflow": {
-      "url": "https://mcp-scholaflow.tferrer.dev/mcp",
+      "url": "https://mcp.scholaflow.com/mcp",
       "transport": "http",
       "headers": {
         "X-Api-Key": "\${SCHOLAFLOW_MCP_APIKEY}"
@@ -339,7 +339,7 @@
         <p><strong>Add this configuration:</strong></p>
         <div class="code-snippet">
           <code>{`[mcp_servers.scholaflow]
-url = "https://mcp-scholaflow.tferrer.dev/mcp"
+url = "https://mcp.scholaflow.com/mcp"
 transport = "http"
 
 [mcp_servers.scholaflow.headers]
@@ -347,7 +347,7 @@ X-Api-Key = "\${SCHOLAFLOW_MCP_APIKEY}"`}</code>
           <button
             class="copy-code-btn"
             onclick={() => copyToClipboard(`[mcp_servers.scholaflow]
-url = "https://mcp-scholaflow.tferrer.dev/mcp"
+url = "https://mcp.scholaflow.com/mcp"
 transport = "http"
 
 [mcp_servers.scholaflow.headers]
@@ -385,7 +385,7 @@ info:
   title: ScholaFlow MCP
   version: 1.0.0
 servers:
-  - url: https://mcp-scholaflow.tferrer.dev/mcp
+  - url: https://mcp.scholaflow.com/mcp
 
 components:
   securitySchemes:
@@ -425,7 +425,7 @@ info:
   title: ScholaFlow MCP
   version: 1.0.0
 servers:
-  - url: https://mcp-scholaflow.tferrer.dev/mcp
+  - url: https://mcp.scholaflow.com/mcp
 
 components:
   securitySchemes:
@@ -482,7 +482,7 @@ paths:
   <section class="section">
     <h2>MCP Server Details</h2>
     <div class="server-info">
-      <p><strong>URL:</strong> <code>https://mcp-scholaflow.tferrer.dev/mcp</code></p>
+      <p><strong>URL:</strong> <code>https://mcp.scholaflow.com/mcp</code></p>
       <p><strong>Transport:</strong> HTTP</p>
       <p><strong>Authentication:</strong> <code>X-Api-Key</code> header</p>
       <p><strong>Environment Variable:</strong> <code>SCHOLAFLOW_MCP_APIKEY</code></p>
