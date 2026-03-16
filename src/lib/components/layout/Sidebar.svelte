@@ -5,8 +5,9 @@
   import { currentUser } from '$lib/stores/auth'
   import { NAV_SECTIONS } from '$lib/config/navigation'
   import { transcriptionGroups, refreshTranscriptionGroups } from '$lib/stores/transcriptionGroups'
-import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
+  import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
   import { kanbanBoards, refreshKanbanBoards } from '$lib/stores/kanbanBoards'
+  import { projects, refreshProjects } from '$lib/stores/projects'
   import { ChevronLeft, ChevronRight, Plus } from 'lucide-svelte'
   import Avatar from '$lib/components/ui/Avatar.svelte'
 
@@ -14,16 +15,18 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
   const visibleGroups = $derived($transcriptionGroups.filter(g => !g.deleted))
   const visibleNotebooks = $derived($notebooks.filter(n => !n.deleted))
   const visibleBoards = $derived($kanbanBoards.filter(b => !b.deleted))
+  const visibleProjects = $derived($projects.filter(p => !p.deleted))
 
   let notebooksExpanded = $state(false)
   let transcriptionExpanded = $state(false)
   let kanbanExpanded = $state(false)
+  let projectsExpanded = $state(false)
   let mcpApiKeysExpanded = $state(false)
 
   // Close mobile sidebar on navigation
   $effect(() => { $page.url.pathname; closeMobileSidebar() })
 
-  onMount(() => { refreshTranscriptionGroups(); refreshNotebooks(); refreshKanbanBoards() })
+  onMount(() => { refreshTranscriptionGroups(); refreshNotebooks(); refreshKanbanBoards(); refreshProjects() })
 
   function toggleNotebooks() {
     notebooksExpanded = !notebooksExpanded
@@ -35,6 +38,10 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
 
   function toggleKanban() {
     kanbanExpanded = !kanbanExpanded
+  }
+
+  function toggleProjects() {
+    projectsExpanded = !projectsExpanded
   }
 
   function toggleMcpApiKeys() {
@@ -71,7 +78,7 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
       {/if}
       {#each section.items as item}
         {@const active = activeHref.startsWith(item.href)}
-        <div class="nav-item-wrapper" class:has-submenu={item.href === '/notebooks' || item.href === '/transcription' || item.href === '/kanban' || item.submenu}>
+        <div class="nav-item-wrapper" class:has-submenu={item.href === '/notebooks' || item.href === '/transcription' || item.href === '/kanban' || item.href === '/projects' || item.submenu}>
           <a
             href={item.href}
             class="nav-item"
@@ -115,6 +122,16 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
               title={kanbanExpanded ? 'Collapse' : 'Expand'}
             >
               <ChevronRight size={18} class={kanbanExpanded ? 'rotated' : ''} />
+            </button>
+          {/if}
+          {#if item.href === '/projects' && !$sidebarCollapsed}
+            <button
+              class="submenu-toggle"
+              onclick={toggleProjects}
+              aria-label={projectsExpanded ? 'Collapse projects' : 'Expand projects'}
+              title={projectsExpanded ? 'Collapse' : 'Expand'}
+            >
+              <ChevronRight size={18} class={projectsExpanded ? 'rotated' : ''} />
             </button>
           {/if}
           {#if item.submenu && !$sidebarCollapsed}
@@ -174,6 +191,24 @@ import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
           <a href="/transcription/new" class="nav-item nav-subitem nav-subitem-new">
             <Plus size={14} />
             <span>New group</span>
+          </a>
+        {/if}
+        {#if item.href === '/projects' && !$sidebarCollapsed && projectsExpanded}
+          {#each visibleProjects as project}
+            {@const projectActive = activeHref.startsWith(`/projects/${project.id}`)}
+            <a
+              href="/projects/{project.id}"
+              class="nav-item nav-subitem"
+              class:active={projectActive}
+              aria-current={projectActive ? 'page' : undefined}
+            >
+              <span class="subitem-dot">·</span>
+              <span>{project.name}</span>
+            </a>
+          {/each}
+          <a href="/projects" class="nav-item nav-subitem nav-subitem-new">
+            <Plus size={14} />
+            <span>New project</span>
           </a>
         {/if}
         {#if item.href === '/notebooks' && !$sidebarCollapsed && notebooksExpanded}

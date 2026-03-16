@@ -11,13 +11,15 @@
   import Pagination from '$lib/components/data/Pagination.svelte'
   import { formatDate } from '$lib/utils/format'
   import { stripMarkdown } from '$lib/utils/markdown'
-  import { Plus, Pencil, Trash2, FileText, Paperclip } from 'lucide-svelte'
+  import AddToProjectModal from '$lib/components/projects/AddToProjectModal.svelte'
+  import { Plus, Pencil, Trash2, FileText, Paperclip, FolderOpen } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
   let nb = $derived(data.notebook)
 
   let deleteTarget = $state<NotebookPost | null>(null)
   let deleting = $state(false)
+  let showAddToProject = $state(false)
 
   function toggleDeleted() {
     const p = new URLSearchParams()
@@ -55,6 +57,9 @@
       <button class="filter-chip" class:active={data.includeDeleted} onclick={toggleDeleted}>
         Show deleted
       </button>
+      <Button variant="outlined" size="sm" onclick={() => showAddToProject = true}>
+        <FolderOpen size={18} /><span class="btn-label"> Add to Project</span>
+      </Button>
       {#if !nb.deleted}
         <Button variant="outlined" size="sm" onclick={() => goto(`/notebooks/${nb.id}/edit`)}>
           <Pencil size={18} /><span class="btn-label"> Edit</span>
@@ -132,6 +137,13 @@
   confirmLabel="Delete"
   onconfirm={confirmDelete}
   oncancel={() => deleteTarget = null}
+/>
+
+<AddToProjectModal
+  open={showAddToProject}
+  entityType="NOTEBOOK"
+  entityId={nb.id}
+  onclose={() => showAddToProject = false}
 />
 
 <style>

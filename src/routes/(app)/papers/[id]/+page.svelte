@@ -11,12 +11,14 @@
   import FileUpload from '$lib/components/forms/FileUpload.svelte'
   import FormField from '$lib/components/forms/FormField.svelte'
   import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
-  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye } from 'lucide-svelte'
+  import AddToProjectModal from '$lib/components/projects/AddToProjectModal.svelte'
+  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen } from 'lucide-svelte'
   import type { Attachment } from '$lib/types/paper'
 
   let { data }: { data: PageData } = $props()
   let paper = $derived(data.paper)
 
+  let showAddToProject = $state(false)
   let noteSlideOpen    = $state(false)
   let newNote          = $state('')
   let savingNote       = $state(false)
@@ -122,16 +124,19 @@
         <StatusChip label={paper.role} variant={paper.role === 'OWNER' ? 'info' : 'neutral'} />
       </div>
     </div>
-    {#if paper.role === 'OWNER'}
-      <div class="header-actions">
+    <div class="header-actions">
+      <Button variant="outlined" size="sm" onclick={() => showAddToProject = true}>
+        <FolderOpen size={20} /><span class="btn-label"> Add to Project</span>
+      </Button>
+      {#if paper.role === 'OWNER'}
         <Button variant="outlined" size="sm" onclick={() => goto(`/papers/${paper.id}/viewers`)}>
           <Users size={20} /><span class="btn-label"> Viewers</span>
         </Button>
         <Button variant="outlined" size="sm" onclick={() => goto(`/papers/${paper.id}/edit`)}>
           <Pencil size={20} /><span class="btn-label"> Edit</span>
         </Button>
-      </div>
-    {/if}
+      {/if}
+    </div>
   </div>
 
   <div class="layout">
@@ -292,6 +297,13 @@
   confirmLabel="Delete"
   onconfirm={confirmDeleteAttachment}
   oncancel={() => deleteAttachTarget = null}
+/>
+
+<AddToProjectModal
+  open={showAddToProject}
+  entityType="PAPER"
+  entityId={paper.id}
+  onclose={() => showAddToProject = false}
 />
 
 <style>

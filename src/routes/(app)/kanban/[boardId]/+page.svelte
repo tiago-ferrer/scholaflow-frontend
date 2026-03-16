@@ -9,7 +9,8 @@
   import Button from '$lib/components/ui/Button.svelte'
   import SlideOver from '$lib/components/dialogs/SlideOver.svelte'
   import ConfirmDialog from '$lib/components/dialogs/ConfirmDialog.svelte'
-  import { Plus, Settings, Trash2, ChevronUp, ChevronDown, X, GripVertical, Check, Pencil } from 'lucide-svelte'
+  import AddToProjectModal from '$lib/components/projects/AddToProjectModal.svelte'
+  import { Plus, Settings, Trash2, ChevronUp, ChevronDown, X, GripVertical, Check, Pencil, FolderOpen } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
 
@@ -25,6 +26,7 @@
   let dragOverColId  = $state<string | null>(null)
 
   // Settings panel
+  let showAddToProject = $state(false)
   let showSettings  = $state(false)
   let editColumns   = $state<KanbanColumnPayload[]>([])
   let savingSettings = $state(false)
@@ -355,6 +357,9 @@
       }}>
         Show deleted
       </button>
+      <Button variant="outlined" size="sm" onclick={() => showAddToProject = true}>
+        <FolderOpen size={16} /> Add to Project
+      </Button>
       <Button variant="outlined" size="sm" onclick={openSettings}>
         <Settings size={16} /> Settings
       </Button>
@@ -635,6 +640,13 @@
   confirmLabel="Delete anyway"
   onconfirm={confirmDeleteCol}
   oncancel={() => deleteColTarget = null}
+/>
+
+<AddToProjectModal
+  open={showAddToProject}
+  entityType="KANBAN_BOARD"
+  entityId={board.id}
+  onclose={() => showAddToProject = false}
 />
 
 <style>

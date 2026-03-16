@@ -11,7 +11,8 @@
   import Pagination from '$lib/components/data/Pagination.svelte'
   import Spinner from '$lib/components/ui/Spinner.svelte'
   import { formatDate } from '$lib/utils/format'
-  import { Plus, Pencil, Trash2, Mic } from 'lucide-svelte'
+  import AddToProjectModal from '$lib/components/projects/AddToProjectModal.svelte'
+  import { Plus, Pencil, Trash2, Mic, FolderOpen } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
   let group = $derived(data.group)
@@ -19,6 +20,7 @@
   let transcriptions = $state([...data.transcriptions.items])
   let deleteTarget = $state<Transcription | null>(null)
   let deleting = $state(false)
+  let showAddToProject = $state(false)
 
   // Keep list in sync when data prop changes (navigating pages)
   $effect(() => { transcriptions = [...data.transcriptions.items] })
@@ -78,6 +80,9 @@
       <button class="filter-chip" class:active={data.includeDeleted} onclick={toggleDeleted}>
         Show deleted
       </button>
+      <Button variant="outlined" size="sm" onclick={() => showAddToProject = true}>
+        <FolderOpen size={18} /><span class="btn-label"> Add to Project</span>
+      </Button>
       {#if !group.deleted}
         <Button variant="outlined" size="sm" onclick={() => goto(`/transcription/${group.id}/edit`)}>
           <Pencil size={18} /><span class="btn-label"> Edit</span>
@@ -165,6 +170,13 @@
   variant="danger"
   onconfirm={confirmDelete}
   oncancel={() => deleteTarget = null}
+/>
+
+<AddToProjectModal
+  open={showAddToProject}
+  entityType="TRANSCRIPTION_GROUP"
+  entityId={group.id}
+  onclose={() => showAddToProject = false}
 />
 
 <style>
