@@ -7,6 +7,9 @@
   import WaitlistForm   from '$lib/components/marketing/WaitlistForm.svelte'
   import CtaSection     from '$lib/components/marketing/CtaSection.svelte'
   import LandingFooter  from '$lib/components/marketing/LandingFooter.svelte'
+  import LoginModal     from '$lib/components/marketing/LoginModal.svelte'
+
+  let loginOpen = $state(false)
 </script>
 
 <svelte:head>
@@ -14,18 +17,20 @@
   <meta name="description" content="Scholaflow brings together notebooks, references, Kanban boards, and AI transcription for researchers and academics. Currently in Beta — join the waitlist." />
 </svelte:head>
 
-<LandingNav />
+<LandingNav onOpenLogin={() => loginOpen = true} />
 
 <main>
-  <HeroSection />
+  <HeroSection onOpenLogin={() => loginOpen = true} />
   <FeatureGrid />
   <FeatureDetail />
   <SocialProof />
   <WaitlistForm />
-  <CtaSection />
+  <CtaSection onOpenLogin={() => loginOpen = true} />
 </main>
 
 <LandingFooter />
+
+<LoginModal open={loginOpen} onclose={() => loginOpen = false} />
 
 <style>
   :global(html) {

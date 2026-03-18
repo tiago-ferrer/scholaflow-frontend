@@ -1,5 +1,8 @@
 <script lang="ts">
   import { isLoggedIn } from '$lib/stores/auth'
+
+  interface Props { onOpenLogin: () => void }
+  let { onOpenLogin }: Props = $props()
 </script>
 
 <nav class="landing-nav">
@@ -11,7 +14,7 @@
       {#if $isLoggedIn}
         <a href="/dashboard" class="btn-nav btn-filled">Go to Dashboard</a>
       {:else}
-        <a href="/login" class="btn-nav btn-outlined">Beta Login</a>
+        <button class="btn-nav btn-outlined" onclick={onOpenLogin}>Beta Login</button>
       {/if}
     </div>
   </div>

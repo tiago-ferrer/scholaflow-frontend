@@ -1,3 +1,8 @@
+<script lang="ts">
+  interface Props { onOpenLogin: () => void }
+  let { onOpenLogin }: Props = $props()
+</script>
+
 <section class="hero">
   <div class="hero-bg-grid" aria-hidden="true"></div>
   <div class="hero-inner">
@@ -15,7 +20,7 @@
       </p>
       <div class="hero-ctas">
         <a href="#waitlist" class="cta-primary">Join the Waitlist</a>
-        <a href="/login" class="cta-secondary">Beta Login →</a>
+        <button class="cta-secondary" onclick={onOpenLogin}>Beta Login →</button>
       </div>
       <div class="hero-social">
         <div class="avatar-stack" aria-hidden="true">
@@ -148,7 +153,8 @@
   .cta-secondary {
     padding: 14px 30px; border-radius: 10px;
     border: 1.5px solid var(--color-primary); color: var(--color-primary);
-    font-weight: 600; font-size: 1rem; text-decoration: none;
+    font-weight: 600; font-size: 1rem;
+    background: none; cursor: pointer; font-family: inherit;
     transition: background 150ms ease, transform 150ms ease;
   }
   .cta-secondary:hover {
