@@ -1,5 +1,7 @@
 import { authStore } from '$lib/stores/auth'
 import { get } from 'svelte/store'
+import { goto } from '$app/navigation'
+import { browser } from '$app/environment'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
@@ -38,6 +40,7 @@ export function makeApi(fetchFn: typeof fetch = globalThis.fetch) {
 
     if (res.status === 401) {
       authStore.clear()
+      if (browser) await goto('/login')
       throw new ApiError(401, 'UNAUTHORIZED', 'Session expired')
     }
 
