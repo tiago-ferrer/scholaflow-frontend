@@ -6,7 +6,7 @@
   import Breadcrumb from './Breadcrumb.svelte'
   import SearchBox from '$lib/components/forms/SearchBox.svelte'
 
-  function logout() { authStore.clear(); goto('/login') }
+  function logout() { authStore.clear(); goto('/') }
 </script>
 
 <header class="topbar">
