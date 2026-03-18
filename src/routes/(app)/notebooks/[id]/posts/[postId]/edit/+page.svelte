@@ -10,7 +10,7 @@
   import Button from '$lib/components/ui/Button.svelte'
   import FormField from '$lib/components/forms/FormField.svelte'
   import FileUpload from '$lib/components/forms/FileUpload.svelte'
-  import ConfirmDialog from '$lib/components/dialogs/ConfirmDialog.svelte'
+  import DestructiveConfirmDialog from '$lib/components/dialogs/DestructiveConfirmDialog.svelte'
   import MarkdownContent from '$lib/components/ui/MarkdownContent.svelte'
   import Spinner from '$lib/components/ui/Spinner.svelte'
   import { renderMarkdown } from '$lib/utils/markdown'
@@ -271,10 +271,11 @@
   {/if}
 </div>
 
-<ConfirmDialog
+<DestructiveConfirmDialog
   open={!!deleteAttachTarget}
   title="Delete attachment?"
-  message="This file will be removed from the post."
+  message="This file will be permanently removed from the post."
+  confirmPhrase={deleteAttachTarget ? `delete ${deleteAttachTarget.filename}` : ''}
   confirmLabel="Delete"
   onconfirm={confirmDeleteAttachment}
   oncancel={() => deleteAttachTarget = null}

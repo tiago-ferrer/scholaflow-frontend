@@ -8,7 +8,7 @@
   import { formatTtlCountdown, formatDeletedAgo, isTtlExpired } from '$lib/utils/ttl'
   import Button from '$lib/components/ui/Button.svelte'
   import EmptyState from '$lib/components/data/EmptyState.svelte'
-  import ConfirmDialog from '$lib/components/dialogs/ConfirmDialog.svelte'
+  import DestructiveConfirmDialog from '$lib/components/dialogs/DestructiveConfirmDialog.svelte'
   import Pagination from '$lib/components/data/Pagination.svelte'
   import { formatDate } from '$lib/utils/format'
   import { Plus, Pencil, Trash2, BookOpen, RotateCcw } from 'lucide-svelte'
@@ -200,10 +200,11 @@
   {/if}
 </div>
 
-<ConfirmDialog
+<DestructiveConfirmDialog
   open={!!deleteTarget}
   title="Delete notebook?"
   message="This notebook and all its posts will be soft-deleted. You can restore it within 7 days."
+  confirmPhrase={deleteTarget ? `delete ${deleteTarget.title}` : ''}
   confirmLabel="Delete"
   onconfirm={confirmDelete}
   oncancel={() => deleteTarget = null}

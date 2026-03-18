@@ -7,7 +7,7 @@
   import type { NotebookPost } from '$lib/types/notebook'
   import Button from '$lib/components/ui/Button.svelte'
   import EmptyState from '$lib/components/data/EmptyState.svelte'
-  import ConfirmDialog from '$lib/components/dialogs/ConfirmDialog.svelte'
+  import DestructiveConfirmDialog from '$lib/components/dialogs/DestructiveConfirmDialog.svelte'
   import Pagination from '$lib/components/data/Pagination.svelte'
   import { formatDate } from '$lib/utils/format'
   import { stripMarkdown } from '$lib/utils/markdown'
@@ -130,10 +130,11 @@
   {/if}
 </div>
 
-<ConfirmDialog
+<DestructiveConfirmDialog
   open={!!deleteTarget}
   title="Delete post?"
-  message="This post will be soft-deleted."
+  message="This post will be soft-deleted. You can restore it within 7 days."
+  confirmPhrase={deleteTarget ? `delete ${deleteTarget.title}` : ''}
   confirmLabel="Delete"
   onconfirm={confirmDelete}
   oncancel={() => deleteTarget = null}
