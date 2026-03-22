@@ -12,7 +12,7 @@
   import FormField from '$lib/components/forms/FormField.svelte'
   import AddToProjectModal from '$lib/components/projects/AddToProjectModal.svelte'
   import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
-  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen } from 'lucide-svelte'
+  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck } from 'lucide-svelte'
   import type { Attachment } from '$lib/types/reference'
 
   let { data }: { data: PageData } = $props()
@@ -27,10 +27,10 @@
   let uploadingFile      = $state(false)
   let deleteAttachTarget = $state<Attachment | null>(null)
 
-  let pdfUrl         = $state<string | null>(null)
-  let loadingPdfId   = $state<string | null>(null)
-  let pdfColEl       = $state<HTMLElement | null>(null)
-  let annotationUrl  = $state<string | null>(null)
+  let pdfUrl           = $state<string | null>(null)
+  let loadingPdfId     = $state<string | null>(null)
+  let loadingAnnotId   = $state<string | null>(null)
+  let pdfColEl         = $state<HTMLElement | null>(null)
 
   $effect(() => {
     if (pdfUrl && pdfColEl) {
@@ -44,16 +44,24 @@
   async function viewPdf(attach: Attachment) {
     loadingPdfId = attach.id
     pdfUrl = null
-    annotationUrl = null
     try {
       pdfUrl = await referencesApi.getDownloadUrl(reference.id, attach.id)
-      if (attach.annotation_key !== null) {
-        annotationUrl = await referencesApi.getAnnotationUrl(reference.id, attach.id)
-      }
     } catch {
       toast.error('Failed to load file')
     } finally {
       loadingPdfId = null
+    }
+  }
+
+  async function viewAnnotatedPdf(attach: Attachment) {
+    loadingAnnotId = attach.id
+    pdfUrl = null
+    try {
+      pdfUrl = await referencesApi.getAnnotationUrl(reference.id, attach.id)
+    } catch {
+      toast.error('Failed to load annotated file')
+    } finally {
+      loadingAnnotId = null
     }
   }
 
@@ -284,17 +292,36 @@
                   <span class="attach-size">{formatBytes(attach.size_bytes)}</span>
                 </div>
                 <div class="attach-actions">
-                  <button
-                    class="icon-btn"
-                    onclick={() => viewPdf(attach)}
-                    title="View in viewer"
-                    disabled={loadingPdfId === attach.id}
-                  >
-                    <Eye size={20} />
-                  </button>
-                  <button class="icon-btn" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
+                  {#if attach.annotation_key !== null}
+                    <button
+                      class="icon-btn"
+                      onclick={() => viewAnnotatedPdf(attach)}
+                      data-tooltip="View with annotations"
+                      disabled={loadingAnnotId === attach.id}
+                    >
+                      <Eye size={20} />
+                    </button>
+                    <button
+                      class="icon-btn"
+                      onclick={() => viewPdf(attach)}
+                      data-tooltip="View original"
+                      disabled={loadingPdfId === attach.id}
+                    >
+                      <FileCheck size={20} />
+                    </button>
+                  {:else}
+                    <button
+                      class="icon-btn"
+                      onclick={() => viewPdf(attach)}
+                      data-tooltip="View"
+                      disabled={loadingPdfId === attach.id}
+                    >
+                      <Eye size={20} />
+                    </button>
+                  {/if}
+                  <button class="icon-btn" data-tooltip="Download" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
                   {#if reference.role === 'OWNER'}
-                    <button class="icon-btn danger" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
+                    <button class="icon-btn danger" data-tooltip="Delete" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
                   {/if}
                 </div>
               </li>
@@ -312,11 +339,6 @@
           <a href={pdfUrl} target="_blank" rel="noopener" class="pdf-open-btn">Open PDF in browser</a>
           <div class="pdf-scroll-wrap">
             <iframe src={pdfUrl} title="PDF Viewer" class="pdf-iframe"></iframe>
-            {#if annotationUrl}
-              <div class="annotation-overlay" aria-hidden="true">
-                <img src={annotationUrl} alt="" />
-              </div>
-            {/if}
           </div>
         {:else}
           <div class="pdf-empty">
@@ -438,21 +460,10 @@
 
   .pdf-card { display: flex; flex-direction: column; position: sticky; top: 80px; }
   .pdf-scroll-wrap {
-    position: relative;
     width: 100%; height: calc(100vh - 220px); min-height: 400px;
     overflow: auto; -webkit-overflow-scrolling: touch; border-radius: 6px;
   }
   .pdf-iframe { width: 100%; height: 100%; border: none; display: block; overflow: auto; }
-  .annotation-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .annotation-overlay img {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
   .pdf-empty {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 12px; height: 300px; color: var(--color-text-disabled);
@@ -471,6 +482,7 @@
   .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
 
   .icon-btn {
+    position: relative;
     display: flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 6px; border: none; cursor: pointer;
     background: transparent; color: var(--color-text-secondary);
@@ -478,4 +490,23 @@
   .icon-btn:hover { background: var(--color-surface-2); }
   .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .icon-btn.danger:hover { background: color-mix(in srgb, var(--color-error) 10%, transparent); color: var(--color-error); }
+
+  .icon-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-surface-3);
+    color: var(--color-text-primary);
+    font-size: 0.6875rem;
+    white-space: nowrap;
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .icon-btn[data-tooltip]:not(:disabled):hover::after { opacity: 1; }
 </style>
