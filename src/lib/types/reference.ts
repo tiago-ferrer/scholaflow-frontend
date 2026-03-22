@@ -37,6 +37,7 @@ export interface Attachment {
   size_bytes: number
   created_at: string
   deleted: boolean
+  annotation_key: string | null
 }
 
 export interface Reference {

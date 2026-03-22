@@ -27,9 +27,10 @@
   let uploadingFile      = $state(false)
   let deleteAttachTarget = $state<Attachment | null>(null)
 
-  let pdfUrl       = $state<string | null>(null)
-  let loadingPdfId = $state<string | null>(null)
-  let pdfColEl     = $state<HTMLElement | null>(null)
+  let pdfUrl         = $state<string | null>(null)
+  let loadingPdfId   = $state<string | null>(null)
+  let pdfColEl       = $state<HTMLElement | null>(null)
+  let annotationSvg  = $state<string | null>(null)
 
   $effect(() => {
     if (pdfUrl && pdfColEl) {
@@ -43,12 +44,26 @@
   async function viewPdf(attach: Attachment) {
     loadingPdfId = attach.id
     pdfUrl = null
+    annotationSvg = null
     try {
       pdfUrl = await referencesApi.getDownloadUrl(reference.id, attach.id)
+      if (attach.annotation_key !== null) {
+        annotationSvg = await loadAnnotation(reference.id, attach.id)
+      }
     } catch {
       toast.error('Failed to load file')
     } finally {
       loadingPdfId = null
+    }
+  }
+
+  async function loadAnnotation(referenceId: string, attachId: string): Promise<string | null> {
+    try {
+      const url = await referencesApi.getAnnotationUrl(referenceId, attachId)
+      const svgRes = await fetch(url)
+      return svgRes.ok ? svgRes.text() : null
+    } catch {
+      return null
     }
   }
 
@@ -307,6 +322,11 @@
           <a href={pdfUrl} target="_blank" rel="noopener" class="pdf-open-btn">Open PDF in browser</a>
           <div class="pdf-scroll-wrap">
             <iframe src={pdfUrl} title="PDF Viewer" class="pdf-iframe"></iframe>
+            {#if annotationSvg}
+              <div class="annotation-overlay" aria-hidden="true">
+                {@html annotationSvg}
+              </div>
+            {/if}
           </div>
         {:else}
           <div class="pdf-empty">
@@ -428,10 +448,20 @@
 
   .pdf-card { display: flex; flex-direction: column; position: sticky; top: 80px; }
   .pdf-scroll-wrap {
+    position: relative;
     width: 100%; height: calc(100vh - 220px); min-height: 400px;
     overflow: auto; -webkit-overflow-scrolling: touch; border-radius: 6px;
   }
   .pdf-iframe { width: 100%; height: 100%; border: none; display: block; overflow: auto; }
+  .annotation-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .annotation-overlay :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
   .pdf-empty {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 12px; height: 300px; color: var(--color-text-disabled);
