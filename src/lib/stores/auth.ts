@@ -49,3 +49,8 @@ export const currentEmail = derived(authStore, $a => {
   const payload = decodeJwtPayload($a.token)
   return typeof payload.email === 'string' ? payload.email : null
 })
+export const isAdmin = derived(authStore, $a => {
+  if (!$a.token) return false
+  const payload = decodeJwtPayload($a.token)
+  return Array.isArray(payload.roles) && payload.roles.includes('ROLE_ADMIN')
+})

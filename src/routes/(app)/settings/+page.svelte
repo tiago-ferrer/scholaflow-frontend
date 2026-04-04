@@ -1,9 +1,12 @@
 <script lang="ts">
   import { theme, toggleTheme } from '$lib/stores/ui'
-  import { currentUser, currentEmail } from '$lib/stores/auth'
+  import { currentUser, currentEmail, isAdmin } from '$lib/stores/auth'
   import { authApi } from '$lib/api/auth'
+  import { costsApi } from '$lib/api/costs'
   import { ApiError } from '$lib/api/client'
-  import { Sun, Moon } from 'lucide-svelte'
+  import { toast } from '$lib/stores/toast'
+  import { Sun, Moon, RefreshCw } from 'lucide-svelte'
+  import type { StorageCost } from '$lib/types/costs'
 
   // 'idle' | 'sending' | 'token' | 'success'
   type PwStep = 'idle' | 'sending' | 'token' | 'success'
@@ -16,6 +19,88 @@
   let pwLoading     = $state(false)
   let pwError       = $state<string | null>(null)
   let fieldErrors   = $state<Record<string, string>>({})
+
+  // Storage state
+  let storage       = $state<StorageCost | null>(null)
+  let storageLoading = $state(true)
+  let allStorage    = $state<StorageCost[] | null>(null)
+  let allStorageLoading = $state(false)
+  let allStorageSortKey = $state<'username' | 'storage_size_bytes' | 'estimated_monthly_cost_usd'>('storage_size_bytes')
+  let allStorageSortDir = $state<'asc' | 'desc'>('desc')
+
+  $effect(() => {
+    loadStorage()
+  })
+
+  async function loadStorage() {
+    storageLoading = true
+    try {
+      storage = await costsApi.getStorage()
+    } catch (err) {
+      if (err instanceof ApiError && err.status >= 500) {
+        toast.error('Failed to load storage data. Please try again.')
+      }
+    } finally {
+      storageLoading = false
+    }
+  }
+
+  async function loadAllStorage() {
+    allStorageLoading = true
+    try {
+      allStorage = await costsApi.getAllStorage()
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status >= 500) toast.error('Failed to load storage data. Please try again.')
+        // 403 — just don't render; handled in template
+      }
+    } finally {
+      allStorageLoading = false
+    }
+  }
+
+  $effect(() => {
+    if ($isAdmin) loadAllStorage()
+  })
+
+  function formatCost(usd: number): string {
+    if (usd === 0) return '$0.00'
+    return usd.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumSignificantDigits: 1,
+      maximumSignificantDigits: 1,
+    })
+  }
+
+  let sortedAllStorage = $derived.by(() => {
+    if (!allStorage) return []
+    return [...allStorage].sort((a, b) => {
+      const dir = allStorageSortDir === 'asc' ? 1 : -1
+      if (allStorageSortKey === 'username') return dir * a.username.localeCompare(b.username)
+      if (allStorageSortKey === 'storage_size_bytes') return dir * (a.storage_size_bytes - b.storage_size_bytes)
+      return dir * (a.estimated_monthly_cost_usd - b.estimated_monthly_cost_usd)
+    })
+  })
+
+  let totalBytes = $derived(allStorage ? allStorage.reduce((s, r) => s + r.storage_size_bytes, 0) : 0)
+  let totalCost  = $derived(allStorage ? allStorage.reduce((s, r) => s + r.estimated_monthly_cost_usd, 0) : 0)
+
+  function formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 B'
+    const units = ['B', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(1024))
+    return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i]
+  }
+
+  function setSort(key: typeof allStorageSortKey) {
+    if (allStorageSortKey === key) {
+      allStorageSortDir = allStorageSortDir === 'asc' ? 'desc' : 'asc'
+    } else {
+      allStorageSortKey = key
+      allStorageSortDir = key === 'username' ? 'asc' : 'desc'
+    }
+  }
 
   async function startChange() {
     pwError = null
@@ -196,6 +281,122 @@
       </button>
     </div>
   </div>
+
+  <!-- Storage Usage -->
+  <div class="card">
+    <h2 class="section-title">Storage Usage</h2>
+    {#if storageLoading}
+      <div class="storage-grid">
+        <div class="storage-item">
+          <span class="storage-label">Storage used</span>
+          <div class="skeleton skeleton-value"></div>
+        </div>
+        <div class="storage-item">
+          <span class="storage-label">Est. monthly cost</span>
+          <div class="skeleton skeleton-value"></div>
+        </div>
+      </div>
+    {:else if storage}
+      <div class="storage-grid">
+        <div class="storage-item">
+          <span class="storage-label">Storage used</span>
+          {#if storage.storage_size_bytes === 0}
+            <span class="storage-value muted">No files uploaded yet</span>
+          {:else}
+            <span class="storage-value">{storage.storage_size_formatted}</span>
+          {/if}
+        </div>
+        <div class="storage-item">
+          <span class="storage-label">Est. monthly cost</span>
+          <span class="storage-value">{formatCost(storage.estimated_monthly_cost_usd)}</span>
+        </div>
+      </div>
+      <p class="storage-hint">Covers all uploaded files: attachments, annotations, handwriting PDFs, and drawings.</p>
+    {/if}
+  </div>
+
+  <!-- Admin: All Users Storage -->
+  {#if $isAdmin}
+    <div class="card">
+      <div class="admin-header">
+        <h2 class="section-title">All Users Storage</h2>
+        <button class="action-btn" onclick={loadAllStorage} disabled={allStorageLoading}>
+          <RefreshCw size={14} />
+          {allStorageLoading ? 'Loading…' : 'Refresh'}
+        </button>
+      </div>
+
+      {#if allStorageLoading}
+        <div class="table-wrap">
+          <table class="storage-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Storage Used</th>
+                <th>Est. Monthly Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each { length: 4 } as _}
+                <tr>
+                  <td><div class="skeleton skeleton-cell"></div></td>
+                  <td><div class="skeleton skeleton-cell"></div></td>
+                  <td><div class="skeleton skeleton-cell"></div></td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else if allStorage === null}
+        <!-- not yet loaded or 403 — render nothing -->
+      {:else if allStorage.length === 0}
+        <p class="empty-msg">No users found.</p>
+      {:else}
+        <div class="table-wrap">
+          <table class="storage-table">
+            <thead>
+              <tr>
+                <th>
+                  <button class="sort-btn" onclick={() => setSort('username')}>
+                    Username
+                    {#if allStorageSortKey === 'username'}<span class="sort-indicator">{allStorageSortDir === 'asc' ? '↑' : '↓'}</span>{/if}
+                  </button>
+                </th>
+                <th>
+                  <button class="sort-btn" onclick={() => setSort('storage_size_bytes')}>
+                    Storage Used
+                    {#if allStorageSortKey === 'storage_size_bytes'}<span class="sort-indicator">{allStorageSortDir === 'asc' ? '↑' : '↓'}</span>{/if}
+                  </button>
+                </th>
+                <th>
+                  <button class="sort-btn" onclick={() => setSort('estimated_monthly_cost_usd')}>
+                    Est. Monthly Cost
+                    {#if allStorageSortKey === 'estimated_monthly_cost_usd'}<span class="sort-indicator">{allStorageSortDir === 'asc' ? '↑' : '↓'}</span>{/if}
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each sortedAllStorage as row}
+                <tr>
+                  <td>{row.username}</td>
+                  <td>{row.storage_size_formatted}</td>
+                  <td>{formatCost(row.estimated_monthly_cost_usd)}</td>
+                </tr>
+              {/each}
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td>Total ({allStorage.length} users)</td>
+                <td>{formatBytes(totalBytes)}</td>
+                <td>{formatCost(totalCost)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -211,6 +412,7 @@
   .divider { height: 1px; background: var(--color-surface-3); margin: 16px 0; }
 
   .action-btn {
+    display: inline-flex; align-items: center; gap: 6px;
     padding: 7px 14px; border-radius: 8px; border: 1px solid var(--color-surface-3);
     background: var(--color-surface-1); cursor: pointer; font-size: 0.8125rem;
     color: var(--color-text-primary); white-space: nowrap;
@@ -267,4 +469,62 @@
     font-size: 0.875rem; color: var(--color-text-primary);
   }
   .theme-toggle:hover { background: var(--color-surface-2); }
+
+  /* Storage */
+  .storage-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;
+  }
+  .storage-item {
+    background: var(--color-surface-1); border: 1px solid var(--color-surface-3);
+    border-radius: 10px; padding: 16px;
+  }
+  .storage-label { font-size: 0.75rem; color: var(--color-text-secondary); display: block; margin-bottom: 6px; }
+  .storage-value { font-size: 1.125rem; font-weight: 500; color: var(--color-text-primary); }
+  .storage-value.muted { font-size: 0.875rem; font-weight: 400; color: var(--color-text-secondary); }
+  .storage-hint { font-size: 0.75rem; color: var(--color-text-secondary); margin: 0; line-height: 1.5; }
+
+  /* Skeletons */
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-surface-3) 50%, var(--color-surface-2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+  }
+  .skeleton-value { height: 28px; width: 80px; margin-top: 6px; }
+  .skeleton-cell  { height: 16px; width: 80%; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* Admin table */
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .admin-header .section-title { margin-bottom: 0; }
+
+  .table-wrap { overflow-x: auto; }
+  .storage-table {
+    width: 100%; border-collapse: collapse; font-size: 0.875rem;
+  }
+  .storage-table th {
+    text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--color-surface-3);
+    color: var(--color-text-secondary); font-weight: 500; white-space: nowrap;
+  }
+  .storage-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--color-surface-3);
+    color: var(--color-text-primary);
+  }
+  .storage-table tbody tr:last-child td { border-bottom: none; }
+  .storage-table tbody tr:hover td { background: var(--color-surface-1); }
+
+  .total-row td {
+    border-top: 2px solid var(--color-surface-3); border-bottom: none;
+    font-weight: 500; color: var(--color-text-primary); padding: 10px 12px;
+  }
+
+  .sort-btn {
+    background: none; border: none; cursor: pointer; font-size: 0.875rem;
+    color: var(--color-text-secondary); font-weight: 500; padding: 0;
+    display: inline-flex; align-items: center; gap: 4px; font-family: inherit;
+  }
+  .sort-btn:hover { color: var(--color-text-primary); }
+  .sort-indicator { color: var(--color-primary); }
+
+  .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
 </style>
