@@ -1,42 +1,64 @@
-# sv
+# Scholaflow Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+SvelteKit 2 + Svelte 5 frontend for the Scholaflow REST API — a research management tool for academics.
 
-## Creating a project
+## Prerequisites
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Node.js 18+
+- npm
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## Getting started
 
-To recreate this project with the same configuration:
+### 1. Install dependencies
 
 ```sh
-# recreate this project
-pnpm dlx sv@0.12.5 create --template minimal --types ts --add tailwindcss="plugins:typography,forms" playwright --install pnpm paperhub
+npm install
 ```
 
-## Developing
+### 2. Configure environment
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Create a `.env` file in the project root (this file is **not committed** to the repository):
+
+```sh
+cp .env.example .env
+```
+
+Or create it manually:
+
+```sh
+# .env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+| Variable | Description | Default |
+|---|---|---|
+| `VITE_API_BASE_URL` | Base URL of the Scholaflow REST API | `''` (same-origin) |
+
+### 3. Run the dev server
 
 ```sh
 npm run dev
+```
 
-# or start the server and open the app in a new browser tab
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+```sh
+# or open it automatically
 npm run dev -- --open
 ```
 
-## Building
-
-To create a production version of your app:
+## Other commands
 
 ```sh
-npm run build
+npm run build     # production build
+npm run preview   # preview production build
+npm run check     # type-check with svelte-check
 ```
 
-You can preview the production build with `npm run preview`.
+## Stack
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- **SvelteKit 2** with **Svelte 5 runes**
+- **TailwindCSS 4**
+- **TypeScript** strict mode
+- `lucide-svelte` for icons
+- `marked` + `katex` for Markdown and math rendering

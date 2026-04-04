@@ -25,7 +25,7 @@
         {
             icon: BookMarked,
             title: 'Smart Reference Import',
-            description: 'Automatically extract title, authors, abstract, DOI, year, and journal — no manual typing. Papers land directly in your PaperHub library.',
+            description: 'Automatically extract title, authors, abstract, DOI, year, and journal — no manual typing. Papers land directly in your Scholaflow library.',
         },
         {
             icon: HighlighterIcon,
@@ -35,12 +35,12 @@
         {
             icon: Layers,
             title: 'PDF Pass-Through',
-            description: 'Open a PDF in your browser and send it straight to PaperHub with one click — full-text stored, ready for annotation inside the app.',
+            description: 'Open a PDF in your browser and send it straight to Scholaflow with one click — full-text stored, ready for annotation inside the app.',
         },
         {
             icon: Zap,
             title: 'Instant Sync',
-            description: 'Works with your existing PaperHub account. Everything you capture in the browser is immediately available across all your devices.',
+            description: 'Works with your existing Scholaflow account. Everything you capture in the browser is immediately available across all your devices.',
         },
         {
             icon: Star,
@@ -51,7 +51,7 @@
 
     const steps = [
         {step: '01', text: 'Install the extension from the Chrome Web Store'},
-        {step: '02', text: 'Log in with your PaperHub account'},
+        {step: '02', text: 'Log in with your Scholaflow account'},
         {step: '03', text: 'Browse to any paper — click the Scholaflow button to save it'},
     ]
 </script>
@@ -69,7 +69,7 @@
         </div>
         <h1 class="hero-title">Scholaflow</h1>
         <p class="hero-tagline">
-            Capture, annotate, and sync academic papers<br/>from the web straight into PaperHub — in one click.
+            Capture, annotate, and sync academic papers<br/>from the web straight into Scholaflow — in one click.
         </p>
         <div class="cta-row">
             <a

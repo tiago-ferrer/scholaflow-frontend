@@ -1,6 +1,6 @@
-# PaperHub Frontend
+# Scholaflow Frontend
 
-SvelteKit 2 + Svelte 5 frontend for the PaperHub REST API — a research management tool for academics.
+SvelteKit 2 + Svelte 5 frontend for the Scholaflow REST API — a research management tool for academics.
 
 ## Stack
 
