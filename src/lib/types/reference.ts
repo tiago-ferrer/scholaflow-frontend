@@ -114,6 +114,18 @@ export interface CreateReferencePayload {
 
 export type PatchReferencePayload = Partial<CreateReferencePayload>
 
+export interface BibImportSkipped {
+  citation_key: string
+  doi: string
+  existing_id: string
+}
+
+export interface BibImportResult {
+  added: number
+  skipped: number
+  skipped_references: BibImportSkipped[]
+}
+
 export interface PageResult<T> {
   items: T[]
   page: number

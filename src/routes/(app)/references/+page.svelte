@@ -13,7 +13,8 @@
   import Pagination from '$lib/components/data/Pagination.svelte'
   import { formatDate } from '$lib/utils/format'
   import FromBibTexModal from '$lib/components/references/FromBibTexModal.svelte'
-  import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3 } from 'lucide-svelte'
+  import ImportBibModal from '$lib/components/references/ImportBibModal.svelte'
+  import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3, FileUp } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
 
@@ -63,6 +64,7 @@
   let deleteTarget = $state<Reference | null>(null)
   let deleting = $state(false)
   let showFromBibTex = $state(false)
+  let showImportBib = $state(false)
 
   const filtered = $derived.by(() => {
     const items = data.references.items
@@ -116,6 +118,7 @@
   <div class="page-header">
     <h1>References</h1>
     <div class="header-actions">
+      <Button variant="outlined" onclick={() => showImportBib = true}><FileUp size={18} /> Import .bib</Button>
       <Button variant="outlined" onclick={() => showFromBibTex = true}><BookMarked size={18} /> From BibTeX</Button>
       <Button onclick={() => goto('/references/new')}><Plus size={20} /> New Reference</Button>
     </div>
@@ -259,6 +262,7 @@
   {/if}
 </div>
 
+<ImportBibModal open={showImportBib} onclose={() => showImportBib = false} />
 <FromBibTexModal open={showFromBibTex} onclose={() => showFromBibTex = false} />
 
 <DestructiveConfirmDialog

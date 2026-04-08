@@ -1,5 +1,5 @@
 import { api, makeApi } from './client'
-import type { Reference, CreateReferencePayload, PatchReferencePayload, PageResult } from '$lib/types/reference'
+import type { Reference, CreateReferencePayload, PatchReferencePayload, PageResult, BibImportResult } from '$lib/types/reference'
 import type { Viewer } from '$lib/types/viewer'
 
 const BASE = '/api/v1/references'
@@ -35,6 +35,11 @@ export function makeReferencesApi(fetchFn?: typeof fetch) {
       return res.url
     },
     deleteAttachment: (id: string, attachId: string) => a.delete<Reference>(`${BASE}/${id}/attachments/${attachId}`),
+
+    importBib: (file: File) => {
+      const fd = new FormData(); fd.append('file', file)
+      return a.upload<BibImportResult>(`${BASE}/import`, fd)
+    },
 
     listViewers:  (id: string)                          => a.get<Viewer[]>(`${BASE}/${id}/viewers`),
     addViewer:    (id: string, viewer_username: string) => a.post<void>(`${BASE}/${id}/viewers`, { viewer_username }),
