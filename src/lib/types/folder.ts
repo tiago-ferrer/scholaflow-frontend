@@ -3,6 +3,7 @@ export interface ReferenceFolder {
   name: string
   parent_id: string | null
   created_at: string
+  feed_url: string | null
   children: ReferenceFolder[]
 }
 
@@ -17,4 +18,8 @@ export interface RenameFolderPayload {
 
 export interface MoveFolderPayload {
   parent_id: string | null
+}
+
+export interface SetFolderFeedPayload {
+  feed_url: string | null
 }
