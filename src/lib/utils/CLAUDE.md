@@ -19,6 +19,11 @@ Pure utility functions with no side effects and no Svelte dependencies.
 - BibTeX string parsing → `CreateReferencePayload`
 - Used by `$lib/components/references/FromBibTexModal.svelte`
 
+### `bibtex-export.ts` / `ris-export.ts` / `csl-json-export.ts`
+- `Reference[]` → BibTeX / RIS / CSL-JSON text, for item and folder-level export
+- Used by `$lib/components/references/BibExportMenu.svelte` and `ExportBibFolderPanel.svelte`
+- `citation.ts`'s `parseName` (exported) is shared for "Last, First" splitting across all three
+
 ### `diff.ts`
 - Text diff utilities (used in post editing)
 
