@@ -6,7 +6,7 @@
   import { toast } from '$lib/stores/toast'
   import { ApiError } from '$lib/api/client'
   import FolderNode from './FolderNode.svelte'
-  import { FolderPlus, Layers, Inbox, Trash2 } from 'lucide-svelte'
+  import { FolderPlus, Layers, Inbox, Trash2, Copy, GitMerge } from 'lucide-svelte'
 
   interface Props {
     /** null = All References, 'unfiled' = Unfiled, uuid = specific folder */
@@ -182,6 +182,14 @@
     <a class="fixed-entry" href="/references/trash">
       <Trash2 size={15} />
       <span>Trash</span>
+    </a>
+    <a class="fixed-entry" href="/references/duplicates">
+      <Copy size={15} />
+      <span>Find Duplicates</span>
+    </a>
+    <a class="fixed-entry" href="/references/authors">
+      <GitMerge size={15} />
+      <span>Merge Authors</span>
     </a>
   </div>
 </nav>

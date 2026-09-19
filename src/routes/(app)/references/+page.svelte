@@ -16,11 +16,12 @@
   import FolderTree from '$lib/components/references/FolderTree.svelte'
   import FromBibTexModal from '$lib/components/references/FromBibTexModal.svelte'
   import ImportBibModal from '$lib/components/references/ImportBibModal.svelte'
+  import AddByIdentifierModal from '$lib/components/references/AddByIdentifierModal.svelte'
   import DownloadFolderPanel from '$lib/components/references/DownloadFolderPanel.svelte'
   import ExportBibFolderPanel from '$lib/components/references/ExportBibFolderPanel.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
   import { formatDate } from '$lib/utils/format'
-  import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3, FileUp, FolderOpen, FolderX, Search, X, Download } from 'lucide-svelte'
+  import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3, FileUp, FolderOpen, FolderX, Search, X, Download, Fingerprint } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
 
@@ -253,6 +254,7 @@
   // ── Modals ────────────────────────────────────────────────────────────────
   let showFromBibTex     = $state(false)
   let showImportBib      = $state(false)
+  let showAddByIdentifier = $state(false)
   let showDownloadFolder = $state(false)
   let showExportBib      = $state(false)
 
@@ -282,6 +284,7 @@
     <div class="header-actions">
       <Button variant="outlined" onclick={() => showImportBib = true}><FileUp size={18} /> Import .bib</Button>
       <Button variant="outlined" onclick={() => showFromBibTex = true}><BookMarked size={18} /> From BibTeX</Button>
+      <Button variant="outlined" onclick={() => showAddByIdentifier = true}><Fingerprint size={18} /> Add by ID</Button>
       <Button onclick={() => goto('/references/new')}><Plus size={20} /> New Reference</Button>
     </div>
   </div>
@@ -554,6 +557,7 @@
   onclose={() => showImportBib = false}
 />
 <FromBibTexModal open={showFromBibTex} onclose={() => showFromBibTex = false} />
+<AddByIdentifierModal open={showAddByIdentifier} onclose={() => showAddByIdentifier = false} />
 
 <DownloadFolderPanel
   open={showDownloadFolder}
@@ -583,7 +587,7 @@
   .page { max-width: 100%; }
   .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 16px; }
   .page-header h1 { margin: 0; font-size: 1.375rem; font-weight: 500; line-height: 1.3; }
-  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 
   /* Semantic search */
   .search-bar {
