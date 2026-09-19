@@ -4,7 +4,7 @@ export type CitationStyle = 'APA' | 'MLA' | 'Chicago' | 'ABNT'
 
 // ── Name parsing ──────────────────────────────────────────────────────────────
 
-function parseName(raw: string): { last: string; first: string } {
+export function parseName(raw: string): { last: string; first: string } {
   const name = raw.trim()
   if (name.includes(',')) {
     const idx = name.indexOf(',')

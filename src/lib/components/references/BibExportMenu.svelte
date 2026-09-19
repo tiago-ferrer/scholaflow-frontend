@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Reference } from '$lib/types/reference'
   import { referencesToBibTeX, bibFilename } from '$lib/utils/bibtex-export'
+  import { referencesToRis, risFilename } from '$lib/utils/ris-export'
+  import { referencesToCslJson, cslJsonFilename } from '$lib/utils/csl-json-export'
   import { toast } from '$lib/stores/toast'
   import Button from '$lib/components/ui/Button.svelte'
   import { Quote, Copy, Download, Check } from 'lucide-svelte'
@@ -22,10 +24,22 @@
     open = !open
   }
 
-  async function copyBib() {
+  function download(content: string, filename: string, mime: string) {
+    const blob = new Blob([content], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  async function copyToClipboard(content: string) {
     open = false
     try {
-      await navigator.clipboard.writeText(referencesToBibTeX(references))
+      await navigator.clipboard.writeText(content)
       clearTimeout(copyTimer)
       copied = true
       copyTimer = setTimeout(() => (copied = false), 2000)
@@ -34,18 +48,13 @@
     }
   }
 
-  function downloadBib() {
-    open = false
-    const blob = new Blob([referencesToBibTeX(references)], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = bibFilename(filenameBase)
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-  }
+  const copyBib = () => copyToClipboard(referencesToBibTeX(references))
+  const downloadBib = () => { open = false; download(referencesToBibTeX(references), bibFilename(filenameBase), 'text/plain;charset=utf-8') }
+
+  const copyRis = () => copyToClipboard(referencesToRis(references))
+  const downloadRis = () => { open = false; download(referencesToRis(references), risFilename(filenameBase), 'application/x-research-info-systems;charset=utf-8') }
+
+  const downloadCslJson = () => { open = false; download(referencesToCslJson(references), cslJsonFilename(filenameBase), 'application/json;charset=utf-8') }
 
   function onWindowClick(e: MouseEvent) {
     if (open && !(e.target as HTMLElement).closest('.bib-export-wrap')) open = false
@@ -67,8 +76,18 @@
 
   {#if open}
     <div class="menu">
+      <div class="menu-section">BibTeX</div>
       <button class="menu-item" onclick={copyBib}><Copy size={15} /> Copy to clipboard</button>
       <button class="menu-item" onclick={downloadBib}><Download size={15} /> Download .bib</button>
+
+      <div class="menu-divider"></div>
+      <div class="menu-section">RIS</div>
+      <button class="menu-item" onclick={copyRis}><Copy size={15} /> Copy to clipboard</button>
+      <button class="menu-item" onclick={downloadRis}><Download size={15} /> Download .ris</button>
+
+      <div class="menu-divider"></div>
+      <div class="menu-section">CSL-JSON</div>
+      <button class="menu-item" onclick={downloadCslJson}><Download size={15} /> Download .json</button>
     </div>
   {/if}
 </div>
@@ -98,6 +117,12 @@
     transition: background var(--transition-standard);
   }
   .menu-item:hover { background: var(--color-surface-2); }
+
+  .menu-section {
+    padding: 6px 10px 2px; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.03em; color: var(--color-text-secondary);
+  }
+  .menu-divider { height: 1px; margin: 4px 6px; background: var(--color-surface-3); }
 
   @media (max-width: 1019px) {
     .btn-label { display: none; }
