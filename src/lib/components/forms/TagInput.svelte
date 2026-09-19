@@ -1,12 +1,15 @@
 <script lang="ts">
   import { X } from 'lucide-svelte'
+  import { tagChipStyle } from '$lib/utils/tag-color'
 
   interface Props {
     tags: string[]
     placeholder?: string
     ontags?: (tags: string[]) => void
+    /** Color each chip deterministically by name (for categories/tags) instead of the uniform primary style (for author/editor names). */
+    colored?: boolean
   }
-  let { tags = $bindable([]), placeholder = 'Type and press Enter…', ontags }: Props = $props()
+  let { tags = $bindable([]), placeholder = 'Type and press Enter…', ontags, colored = false }: Props = $props()
 
   let input = $state('')
 
@@ -34,7 +37,7 @@
 
 <div class="tag-input">
   {#each tags as tag}
-    <span class="tag">
+    <span class="tag" style={colored ? tagChipStyle(tag) : undefined}>
       {tag}
       <button type="button" onclick={() => removeTag(tag)} aria-label="Remove {tag}">
         <X size={16} />

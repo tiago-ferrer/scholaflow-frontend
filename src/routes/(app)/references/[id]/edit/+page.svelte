@@ -267,7 +267,7 @@
             <input type="text" bind:value={note} placeholder="BibTeX note field" />
           </FormField>
           <FormField label="Categories">
-            <TagInput bind:tags={categories} placeholder="Tag, press Enter…" />
+            <TagInput bind:tags={categories} placeholder="Tag, press Enter…" colored />
           </FormField>
           <FormField label="Citation Count">
             <input type="number" bind:value={citationCount} min="0" />

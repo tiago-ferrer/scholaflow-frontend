@@ -24,6 +24,7 @@
   import ExportBibFolderPanel from '$lib/components/references/ExportBibFolderPanel.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
   import { formatDate } from '$lib/utils/format'
+  import { tagChipStyle } from '$lib/utils/tag-color'
   import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3, FileUp, FolderOpen, FolderX, Search, X, Download, Fingerprint, Star, BookmarkPlus } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
@@ -34,6 +35,7 @@
     { key: 'authors', label: 'Authors' },
     { key: 'year',    label: 'Year' },
     { key: 'venue',   label: 'Venue' },
+    { key: 'tags',    label: 'Tags' },
     { key: 'role',    label: 'Role' },
     { key: 'updated', label: 'Updated' },
   ] as const
@@ -491,6 +493,7 @@
                 {#if col('authors')}<th>Authors</th>{/if}
                 {#if col('year')}<th>Year</th>{/if}
                 {#if col('venue')}<th>Venue</th>{/if}
+                {#if col('tags')}<th>Tags</th>{/if}
                 {#if col('role')}<th>Role</th>{/if}
                 {#if col('updated')}<th>Updated</th>{/if}
                 <th class="actions-col">Actions</th>
@@ -520,6 +523,19 @@
                   {#if col('authors')}<td class="authors-cell">{reference.author?.join(', ') ?? '—'}</td>{/if}
                   {#if col('year')}<td>{reference.year ?? '—'}</td>{/if}
                   {#if col('venue')}<td class="journal-cell">{venue(reference)}</td>{/if}
+                  {#if col('tags')}
+                    <td class="tags-cell">
+                      {#if reference.categories?.length}
+                        <div class="chip-list">
+                          {#each reference.categories as cat}
+                            <span class="cat-chip" style={tagChipStyle(cat)}>{cat}</span>
+                          {/each}
+                        </div>
+                      {:else}
+                        —
+                      {/if}
+                    </td>
+                  {/if}
                   {#if col('role')}<td><StatusChip label={reference.role} variant={reference.role === 'OWNER' ? 'info' : 'neutral'} /></td>{/if}
                   {#if col('updated')}<td class="date-cell">{formatDate(reference.updated_at)}</td>{/if}
                   <td class="actions-cell">
@@ -830,6 +846,9 @@
   .title-cell { max-width: 260px; }
   .authors-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-secondary); font-size: 0.8125rem; }
   .journal-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tags-cell { max-width: 200px; color: var(--color-text-secondary); font-size: 0.8125rem; }
+  .chip-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cat-chip { padding: 1px 7px; border-radius: 10px; font-size: 0.6875rem; white-space: nowrap; }
   .date-cell { white-space: nowrap; color: var(--color-text-secondary); font-size: 0.8125rem; }
   .paper-link { color: var(--color-text-primary); text-decoration: none; font-weight: 500; }
   .paper-link:hover { color: var(--color-primary); }
