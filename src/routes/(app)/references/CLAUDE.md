@@ -10,9 +10,6 @@ references/
   +page.ts              # Loads paginated references
   new/
     +page.svelte        # Create reference (manual form or BibTeX import)
-  trash/
-    +page.svelte        # Soft-deleted references (7-day TTL) with a restore action
-    +page.ts
   duplicates/
     +page.svelte        # Owned references grouped by matching DOI or citation key
     +page.ts
@@ -61,7 +58,7 @@ Both views use `viewers/+page.svelte` which loads the appropriate URL from the A
 
 ## Trash
 
-`GET /references/trash` (owner-only) returns soft-deleted references, most recently deleted first — a backend table Scan, not a GSI query (deleted items are absent from the sparse owner-index). Linked from `FolderTree.svelte`'s bottom "library tools" section. Restoring uses the existing `referencesApi.restore(id)`.
+`GET /references/trash` (owner-only) returns soft-deleted references, most recently deleted first — a backend table Scan, not a GSI query (deleted items are absent from the sparse owner-index). Shown in `TrashModal.svelte`, opened from `FolderTree.svelte`'s bottom "library tools" section (fetches lazily on first open, cached for the component's lifetime). Restoring uses the existing `referencesApi.restore(id)` and calls `invalidateAll()` so the restored reference reappears in the list behind the modal.
 
 ## Add by DOI/ISBN/PMID
 

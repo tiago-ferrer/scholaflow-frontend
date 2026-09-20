@@ -6,6 +6,7 @@
   import { toast } from '$lib/stores/toast'
   import { ApiError } from '$lib/api/client'
   import FolderNode from './FolderNode.svelte'
+  import TrashModal from './TrashModal.svelte'
   import { FolderPlus, Layers, Inbox, Trash2, Copy, GitMerge } from 'lucide-svelte'
 
   interface Props {
@@ -20,6 +21,7 @@
   let creatingRoot  = $state(false)
   let newRootName   = $state('')
   let rootDragOver  = $state(false)
+  let showTrash     = $state(false)
 
   onMount(() => {
     if ($folders.length === 0) folders.load()
@@ -179,10 +181,10 @@
 
   <!-- Library maintenance tools -->
   <div class="tools-section">
-    <a class="fixed-entry" href="/references/trash">
+    <button class="fixed-entry" onclick={() => showTrash = true}>
       <Trash2 size={15} />
       <span>Trash</span>
-    </a>
+    </button>
     <a class="fixed-entry" href="/references/duplicates">
       <Copy size={15} />
       <span>Find Duplicates</span>
@@ -193,6 +195,8 @@
     </a>
   </div>
 </nav>
+
+<TrashModal open={showTrash} onclose={() => showTrash = false} />
 
 <style>
   .tree {
