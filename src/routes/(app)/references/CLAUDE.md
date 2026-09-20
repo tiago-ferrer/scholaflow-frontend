@@ -76,3 +76,11 @@ Linked from `FolderTree.svelte`'s bottom section (below "Unfiled"):
 ## Create Form
 
 Manual form covers all bibliographic fields. `BibTexEntryType` selector determines which fields are shown/required.
+
+## Favorite, Read Status, Related Items
+
+`Reference.starred`/`read`/`related_ids` are all set via the existing `referencesApi.patch()` — no dedicated endpoints. The list page shows a star toggle per row (and bolds unread titles); the detail page has a star toggle in the header, marks the reference read on open (fire-and-forget, no reload), and has a "Related" card that resolves `related_ids` to full references client-side (`referencesApi.get()` per ID) and offers a semantic-search picker (`referencesApi.search()`) to add more.
+
+## Saved Searches ("Smart Collections")
+
+`$lib/api/savedSearches.ts` (`/api/v1/saved-searches`) stores just `{name, query}` — re-running the query always reflects the current library, so there's no snapshot to keep in sync. Managed inline on the references list page: a bookmark button next to the search bar appears once a search is active, and saved searches render as removable pills below the search bar; clicking one re-runs it.

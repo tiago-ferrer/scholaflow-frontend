@@ -16,8 +16,8 @@
   import CopyCitation from '$lib/components/references/CopyCitation.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
   import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
-  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2, Link } from 'lucide-svelte'
-  import type { Attachment } from '$lib/types/reference'
+  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2, Link, Star, Link2, X } from 'lucide-svelte'
+  import type { Attachment, Reference } from '$lib/types/reference'
 
   let { data }: { data: PageData } = $props()
   let reference = $derived(data.reference)
@@ -27,7 +27,78 @@
   let assigningFolder  = $state(false)
   $effect(() => { folderSelectStr = reference.folder_id ?? '' })
 
-  onMount(() => { if ($folders.length === 0) folders.load() })
+  onMount(() => {
+    if ($folders.length === 0) folders.load()
+    // Mark read on open — fire-and-forget, no invalidateAll (would reload the whole page for a
+    // one-way flag flip the user didn't explicitly ask to see reflected here).
+    if (reference.role === 'OWNER' && reference.read === false) {
+      referencesApi.patch(reference.id, { read: true }).catch(() => {})
+    }
+  })
+
+  let starring = $state(false)
+  async function toggleStar() {
+    starring = true
+    try {
+      await referencesApi.patch(reference.id, { starred: !reference.starred })
+      await invalidateAll()
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to update')
+    } finally {
+      starring = false
+    }
+  }
+
+  // ── Related items ────────────────────────────────────────────────────────
+  let relatedRefs      = $state<Reference[]>([])
+  let relatedSlideOpen = $state(false)
+  let relatedQuery     = $state('')
+  let relatedResults   = $state<Reference[]>([])
+  let relatedSearching = $state(false)
+
+  $effect(() => {
+    const ids = reference.related_ids ?? []
+    if (ids.length === 0) { relatedRefs = []; return }
+    Promise.all(ids.map(id => referencesApi.get(id).catch(() => null)))
+      .then(refs => { relatedRefs = refs.filter((r): r is Reference => r !== null) })
+  })
+
+  async function searchRelated() {
+    const q = relatedQuery.trim()
+    if (!q) { relatedResults = []; return }
+    relatedSearching = true
+    try {
+      const results = await referencesApi.search(q, 10)
+      relatedResults = results
+        .map(r => r.reference)
+        .filter(r => r.id !== reference.id && !(reference.related_ids ?? []).includes(r.id))
+    } catch {
+      relatedResults = []
+    } finally {
+      relatedSearching = false
+    }
+  }
+
+  async function addRelated(target: Reference) {
+    const next = [...(reference.related_ids ?? []), target.id]
+    try {
+      await referencesApi.patch(reference.id, { related_ids: next })
+      relatedResults = relatedResults.filter(r => r.id !== target.id)
+      await invalidateAll()
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to add related item')
+    }
+  }
+
+  async function removeRelated(targetId: string) {
+    const next = (reference.related_ids ?? []).filter(id => id !== targetId)
+    try {
+      await referencesApi.patch(reference.id, { related_ids: next })
+      await invalidateAll()
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to remove related item')
+    }
+  }
 
   async function assignFolder(folderId: string | null) {
     assigningFolder = true
@@ -182,6 +253,11 @@
     <div class="header-left">
       <a href="/references" class="back-link">← References</a>
       <div class="title-row">
+        {#if reference.role === 'OWNER'}
+          <button class="star-btn" class:starred={reference.starred} disabled={starring} onclick={toggleStar} title={reference.starred ? 'Unstar' : 'Star'}>
+            <Star size={22} fill={reference.starred ? 'currentColor' : 'none'} />
+          </button>
+        {/if}
         <span class="entry-badge">{reference.entry_type}</span>
         <h1>{reference.title}</h1>
         <StatusChip label={reference.role} variant={reference.role === 'OWNER' ? 'info' : 'neutral'} />
@@ -423,6 +499,37 @@
           </ul>
         {/if}
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Related</h2>
+          {#if reference.role === 'OWNER'}
+            <button class="icon-btn" data-tooltip="Add related reference" onclick={() => { relatedSlideOpen = true; relatedQuery = ''; relatedResults = [] }}>
+              <Plus size={20} />
+            </button>
+          {/if}
+        </div>
+        {#if relatedRefs.length === 0}
+          <p class="empty-msg">No related references</p>
+        {:else}
+          <ul class="attach-list">
+            {#each relatedRefs as rel (rel.id)}
+              <li class="attach-item">
+                <Link2 size={20} />
+                <div class="attach-info">
+                  <a href="/references/{rel.id}" class="attach-name">{rel.title}</a>
+                  <span class="attach-size">{rel.year ?? ''}</span>
+                </div>
+                {#if reference.role === 'OWNER'}
+                  <button class="icon-btn danger" data-tooltip="Remove" onclick={() => removeRelated(rel.id)}>
+                    <X size={18} />
+                  </button>
+                {/if}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
     </div>
 
     <!-- Right column: PDF viewer -->
@@ -481,6 +588,30 @@
   </div>
 </SlideOver>
 
+<SlideOver open={relatedSlideOpen} title="Add Related Reference" onclose={() => relatedSlideOpen = false}>
+  <div class="note-form">
+    <FormField label="Search your library">
+      <input
+        type="text"
+        bind:value={relatedQuery}
+        placeholder="Search by meaning…"
+        onkeydown={(e) => { if (e.key === 'Enter') searchRelated() }}
+      />
+    </FormField>
+    <Button onclick={searchRelated} loading={relatedSearching} disabled={!relatedQuery.trim()}>Search</Button>
+    {#if relatedResults.length > 0}
+      <ul class="related-results">
+        {#each relatedResults as r (r.id)}
+          <li>
+            <span class="related-result-title">{r.title}</span>
+            <button class="icon-btn" data-tooltip="Add" onclick={() => addRelated(r)}><Plus size={18} /></button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
+</SlideOver>
+
 <AddToProjectModal
   open={showAddToProject}
   entityType="PAPER"
@@ -523,6 +654,15 @@
     font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
     background: var(--color-primary-subtle); color: var(--color-primary);
   }
+  .star-btn {
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    border: none; background: transparent; cursor: pointer; padding: 2px;
+    color: var(--color-text-disabled); transition: color var(--transition-standard);
+  }
+  .star-btn:hover { color: var(--color-text-secondary); }
+  .star-btn.starred, .star-btn.starred:hover { color: #f5b301; }
+  .star-btn:disabled { opacity: 0.6; cursor: default; }
+
   .citation-key {
     font-size: 0.8125rem; color: var(--color-text-disabled);
     font-family: monospace; letter-spacing: 0.02em;
@@ -571,6 +711,8 @@
   .attach-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--color-surface-1); border-radius: 8px; color: var(--color-text-secondary); }
   .attach-info { flex: 1; min-width: 0; }
   .attach-name { font-size: 0.8125rem; color: var(--color-text-primary); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  a.attach-name { text-decoration: none; }
+  a.attach-name:hover { text-decoration: underline; }
   .attach-size { font-size: 0.6875rem; color: var(--color-text-disabled); }
   .attach-actions { display: flex; gap: 4px; }
 
@@ -635,6 +777,10 @@
   .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
 
   .attach-header-actions { display: flex; align-items: center; gap: 4px; }
+
+  .related-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .related-results li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 4px; }
+  .related-result-title { font-size: 0.8125rem; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .icon-btn {
     position: relative;
