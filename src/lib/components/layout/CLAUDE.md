@@ -37,7 +37,7 @@ a route `load` function is running. Rendered in `(app)/+layout.svelte` whenever 
 SvelteKit `$navigating` store (`$app/stores`) is non-null. Covers only `.content-area`
 (absolute inset, `z-index: 10`, below Sidebar's 40 and TopBar's floating button's 30)
 so the Sidebar stays interactive during navigation while the rest of the screen is
-blocked from clicks and shows a `Spinner`.
+blocked from clicks and shows a `BrandLoadingIcon` (Scholaflow brand mark, bloom animation).
 
 ## Layout Hierarchy
 
