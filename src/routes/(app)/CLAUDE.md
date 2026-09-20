@@ -6,7 +6,7 @@ All authenticated pages. Protected by the auth guard in `+layout.ts`.
 
 Renders the full app shell:
 - `<Sidebar />` — left navigation
-- `<TopBar />` — top header
+- `<TopBar />` — no visible bar on desktop; renders only a floating hamburger button on mobile to open the overlay Sidebar (dark mode + logout live in `settings/` instead)
 - `<ToastStack />` — global toast notifications
 - `{@render children()}` — page content in the main area
 

@@ -64,6 +64,6 @@
   .content { flex: 1; padding: 24px; overflow-y: auto; overflow-x: hidden; }
 
   @media (max-width: 1019px) {
-    .content { padding: 16px 12px; }
+    .content { padding: 64px 12px 16px; }
   }
 </style>
