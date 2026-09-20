@@ -10,6 +10,9 @@ references/
   +page.ts              # Loads paginated references
   new/
     +page.svelte        # Create reference (manual form or BibTeX import)
+  trash/
+    +page.svelte        # Soft-deleted references (7-day TTL) with a restore action
+    +page.ts
   [id]/
     +layout.ts          # Loads reference by ID; shared by all sub-routes
     +page.svelte        # Reference detail: metadata, notes, attachments, viewers
@@ -49,6 +52,10 @@ Both views use `viewers/+page.svelte` which loads the appropriate URL from the A
 ## BibTeX Import
 
 `FromBibTexModal.svelte` parses a BibTeX string (via `$lib/utils/bibtex.ts`) and pre-fills the create form. Accessible from the "New" button on the references list.
+
+## Trash
+
+`GET /references/trash` (owner-only) returns soft-deleted references, most recently deleted first — a backend table Scan, not a GSI query (deleted items are absent from the sparse owner-index). Linked from `FolderTree.svelte`'s bottom "library tools" section. Restoring uses the existing `referencesApi.restore(id)`.
 
 ## Create Form
 
