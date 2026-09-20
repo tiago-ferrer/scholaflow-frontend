@@ -7,7 +7,7 @@
   import { ApiError } from '$lib/api/client'
   import { toast } from '$lib/stores/toast'
   import { Sun, Moon, RefreshCw, LogOut } from 'lucide-svelte'
-  import type { StorageCost } from '$lib/types/costs'
+  import type { StorageCost, UsageCost, ResourceUsage } from '$lib/types/costs'
 
   function logout() { authStore.clear(); goto('/') }
 
@@ -31,8 +31,81 @@
   let allStorageSortKey = $state<'username' | 'storage_size_bytes' | 'estimated_monthly_cost_usd'>('storage_size_bytes')
   let allStorageSortDir = $state<'asc' | 'desc'>('desc')
 
+  // AI & transcription usage state
+  let usage         = $state<UsageCost | null>(null)
+  let usageLoading  = $state(true)
+  let allUsage      = $state<UsageCost[] | null>(null)
+  let allUsageLoading = $state(false)
+  let allUsageSortKey = $state<'username' | 'total'>('total')
+  let allUsageSortDir = $state<'asc' | 'desc'>('desc')
+
+  const RESOURCE_LABELS: Record<string, string> = {
+    OPENAI_CHAT: 'AI Note Generation',
+    OPENAI_EMBEDDING: 'Semantic Search / Indexing',
+    DEEPGRAM: 'Audio Transcription',
+  }
+
+  function resourceLabel(key: string): string {
+    if (RESOURCE_LABELS[key]) return RESOURCE_LABELS[key]
+    return key
+      .toLowerCase()
+      .split('_')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+  }
+
+  function formatQuantity(unit: string, quantity: number): string {
+    if (unit === 'tokens') return `${quantity.toLocaleString('en-US')} tokens`
+    if (unit === 'audio_ms') return `${(quantity / 60000).toLocaleString('en-US', { maximumFractionDigits: 1 })} min`
+    if (unit === 'bytes') return formatBytes(quantity)
+    return quantity.toLocaleString('en-US')
+  }
+
+  function nonStorageEntries(u: UsageCost): [string, ResourceUsage][] {
+    return Object.entries(u.by_resource).filter(([key]) => key !== 'S3_STORAGE')
+  }
+
+  function nonStorageTotal(u: UsageCost): number {
+    return nonStorageEntries(u).reduce((sum, [, r]) => sum + r.estimated_cost_usd, 0)
+  }
+
   $effect(() => {
     loadStorage()
+  })
+
+  $effect(() => {
+    loadUsage()
+  })
+
+  async function loadUsage() {
+    usageLoading = true
+    try {
+      usage = await costsApi.getUsage()
+    } catch (err) {
+      if (err instanceof ApiError && err.status >= 500) {
+        toast.error('Failed to load usage data. Please try again.')
+      }
+    } finally {
+      usageLoading = false
+    }
+  }
+
+  async function loadAllUsage() {
+    allUsageLoading = true
+    try {
+      allUsage = await costsApi.getAllUsage()
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status >= 500) toast.error('Failed to load usage data. Please try again.')
+        // 403 — just don't render; handled in template
+      }
+    } finally {
+      allUsageLoading = false
+    }
+  }
+
+  $effect(() => {
+    if ($isAdmin) loadAllUsage()
   })
 
   async function loadStorage() {
@@ -102,6 +175,49 @@
     } else {
       allStorageSortKey = key
       allStorageSortDir = key === 'username' ? 'asc' : 'desc'
+    }
+  }
+
+  let usageEntries = $derived(usage ? nonStorageEntries(usage) : [])
+  let usageTotal   = $derived(usage ? nonStorageTotal(usage) : 0)
+
+  let usageColumns = $derived.by(() => {
+    if (!allUsage) return []
+    const units = new Map<string, string>()
+    for (const u of allUsage) {
+      for (const [key, r] of Object.entries(u.by_resource)) {
+        if (key !== 'S3_STORAGE' && !units.has(key)) units.set(key, r.unit)
+      }
+    }
+    return [...units.entries()].map(([key, unit]) => ({ key, unit, label: resourceLabel(key) }))
+  })
+
+  let sortedAllUsage = $derived.by(() => {
+    if (!allUsage) return []
+    return [...allUsage].sort((a, b) => {
+      const dir = allUsageSortDir === 'asc' ? 1 : -1
+      if (allUsageSortKey === 'username') return dir * a.username.localeCompare(b.username)
+      return dir * (nonStorageTotal(a) - nonStorageTotal(b))
+    })
+  })
+
+  let allUsageColumnTotals = $derived.by(() => {
+    const totals = new Map<string, number>()
+    if (!allUsage) return totals
+    for (const col of usageColumns) {
+      totals.set(col.key, allUsage.reduce((s, u) => s + (u.by_resource[col.key]?.quantity ?? 0), 0))
+    }
+    return totals
+  })
+
+  let allUsageTotalCost = $derived(allUsage ? allUsage.reduce((s, u) => s + nonStorageTotal(u), 0) : 0)
+
+  function setUsageSort(key: typeof allUsageSortKey) {
+    if (allUsageSortKey === key) {
+      allUsageSortDir = allUsageSortDir === 'asc' ? 'desc' : 'asc'
+    } else {
+      allUsageSortKey = key
+      allUsageSortDir = key === 'username' ? 'asc' : 'desc'
     }
   }
 
@@ -342,6 +458,41 @@
     {/if}
   </div>
 
+  <!-- AI & Transcription Usage -->
+  <div class="card">
+    <h2 class="section-title">AI & Transcription Usage</h2>
+    {#if usageLoading}
+      <div class="storage-grid">
+        {#each { length: 3 } as _}
+          <div class="storage-item">
+            <span class="storage-label">Loading</span>
+            <div class="skeleton skeleton-value"></div>
+          </div>
+        {/each}
+      </div>
+    {:else if usage}
+      {#if usageEntries.length === 0}
+        <div class="storage-grid">
+          <div class="storage-item">
+            <span class="storage-label">AI usage</span>
+            <span class="storage-value muted">No AI usage yet</span>
+          </div>
+        </div>
+      {:else}
+        <div class="storage-grid">
+          {#each usageEntries as [key, resource]}
+            <div class="storage-item">
+              <span class="storage-label">{resourceLabel(key)}</span>
+              <span class="storage-value">{formatQuantity(resource.unit, resource.quantity)}</span>
+              <span class="storage-value muted">{formatCost(resource.estimated_cost_usd)}</span>
+            </div>
+          {/each}
+        </div>
+        <p class="storage-hint">Total: {formatCost(usageTotal)} — estimated costs based on approximate provider pricing, not an exact bill.</p>
+      {/if}
+    {/if}
+  </div>
+
   <!-- Admin: All Users Storage -->
   {#if $isAdmin}
     <div class="card">
@@ -417,6 +568,88 @@
                 <td>Total ({allStorage.length} users)</td>
                 <td>{formatBytes(totalBytes)}</td>
                 <td>{formatCost(totalCost)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  <!-- Admin: All Users AI Usage -->
+  {#if $isAdmin}
+    <div class="card">
+      <div class="admin-header">
+        <h2 class="section-title">All Users AI Usage</h2>
+        <button class="action-btn" onclick={loadAllUsage} disabled={allUsageLoading}>
+          <RefreshCw size={14} />
+          {allUsageLoading ? 'Loading…' : 'Refresh'}
+        </button>
+      </div>
+
+      {#if allUsageLoading}
+        <div class="table-wrap">
+          <table class="storage-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each { length: 4 } as _}
+                <tr>
+                  <td><div class="skeleton skeleton-cell"></div></td>
+                  <td><div class="skeleton skeleton-cell"></div></td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else if allUsage === null}
+        <!-- not yet loaded or 403 — render nothing -->
+      {:else if allUsage.length === 0}
+        <p class="empty-msg">No users found.</p>
+      {:else}
+        <div class="table-wrap">
+          <table class="storage-table">
+            <thead>
+              <tr>
+                <th>
+                  <button class="sort-btn" onclick={() => setUsageSort('username')}>
+                    Username
+                    {#if allUsageSortKey === 'username'}<span class="sort-indicator">{allUsageSortDir === 'asc' ? '↑' : '↓'}</span>{/if}
+                  </button>
+                </th>
+                {#each usageColumns as col}
+                  <th>{col.label}</th>
+                {/each}
+                <th>
+                  <button class="sort-btn" onclick={() => setUsageSort('total')}>
+                    Total
+                    {#if allUsageSortKey === 'total'}<span class="sort-indicator">{allUsageSortDir === 'asc' ? '↑' : '↓'}</span>{/if}
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each sortedAllUsage as row}
+                <tr>
+                  <td>{row.username}</td>
+                  {#each usageColumns as col}
+                    <td>{row.by_resource[col.key] ? formatQuantity(col.unit, row.by_resource[col.key].quantity) : '—'}</td>
+                  {/each}
+                  <td>{formatCost(nonStorageTotal(row))}</td>
+                </tr>
+              {/each}
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td>Total ({allUsage.length} users)</td>
+                {#each usageColumns as col}
+                  <td>{formatQuantity(col.unit, allUsageColumnTotals.get(col.key) ?? 0)}</td>
+                {/each}
+                <td>{formatCost(allUsageTotalCost)}</td>
               </tr>
             </tfoot>
           </table>
