@@ -10,7 +10,7 @@
   aria-label="Loading page"
   transition:fade={{ duration: 120 }}
 >
-  <BrandLoadingIcon size={32} />
+  <BrandLoadingIcon size={64} />
 </div>
 
 <style>
