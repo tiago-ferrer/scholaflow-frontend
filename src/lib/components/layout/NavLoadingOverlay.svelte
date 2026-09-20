@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade } from 'svelte/transition'
-  import Spinner from '$lib/components/ui/Spinner.svelte'
+  import BrandLoadingIcon from '$lib/components/ui/BrandLoadingIcon.svelte'
 </script>
 
 <div
@@ -10,7 +10,7 @@
   aria-label="Loading page"
   transition:fade={{ duration: 120 }}
 >
-  <Spinner size={32} />
+  <BrandLoadingIcon size={32} />
 </div>
 
 <style>

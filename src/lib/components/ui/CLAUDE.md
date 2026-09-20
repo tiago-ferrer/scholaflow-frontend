@@ -17,8 +17,16 @@ User avatar circle showing initials or image. Props: `name`, `src?`, `size`.
 Colored status pill — used for transcription statuses (`PENDING`, `PROCESSING`, `DONE`, `FAILED`), soft-delete state, etc.
 
 ### `Spinner.svelte`
-Loading spinner. Props: `size` (px), `class`. Used standalone and inside
-`layout/NavLoadingOverlay.svelte` for the global route-loading veil.
+Loading spinner (circular ring). Props: `size` (px), `class`. Used standalone
+inside modals/panels/tables — not the global route-loading veil (see
+`BrandLoadingIcon.svelte`).
+
+### `BrandLoadingIcon.svelte`
+Scholaflow brand mark (inline SVG, 4-petal icon) with a CSS "bloom" loop —
+petals scale in from the center in a staggered cascade, hold, shrink back,
+then pause before repeating. Props: `size` (px). Used only in
+`layout/NavLoadingOverlay.svelte` for the global route-loading veil, in
+place of the generic `Spinner`.
 
 ### `Divider.svelte`
 Horizontal rule with optional label. Props: `label?`.
