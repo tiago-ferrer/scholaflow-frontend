@@ -11,7 +11,7 @@
   import { toast } from '$lib/stores/toast'
   import { ApiError } from '$lib/api/client'
   import type { ReferenceFolder } from '$lib/types/folder'
-  import { ChevronRight, Folder, FolderOpen, Plus, Pencil, Trash2 } from 'lucide-svelte'
+  import { ChevronRight, Folder, FolderOpen, Plus, Pencil, Trash2, Rss } from 'lucide-svelte'
 
   interface Props {
     folder:       ReferenceFolder
@@ -30,6 +30,8 @@
   let newChildName   = $state('')
   let dragOver       = $state(false)
   let showConfirm    = $state(false)
+  let editingFeed    = $state(false)
+  let feedDraft      = $state('')
 
   // ── Rename ────────────────────────────────────────────────────────────────
 
@@ -81,6 +83,32 @@
   function onCreateKey(e: KeyboardEvent) {
     if (e.key === 'Enter')  { e.preventDefault(); submitCreate() }
     if (e.key === 'Escape') { creatingChild = false }
+  }
+
+  // ── Watched feed ──────────────────────────────────────────────────────────
+
+  function startFeedEdit() {
+    feedDraft = folder.feed_url ?? ''
+    editingFeed = true
+  }
+
+  async function submitFeed() {
+    const url = feedDraft.trim()
+    editingFeed = false
+    const feedUrl = url || null
+    if (feedUrl === folder.feed_url) return
+    try {
+      const updated = await foldersApi.setFeed(folder.id, feedUrl)
+      folders.updateFolder(folder.id, { feed_url: updated.feed_url })
+      toast.success(feedUrl ? 'Now watching this feed' : 'Stopped watching feed')
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to update feed')
+    }
+  }
+
+  function onFeedKey(e: KeyboardEvent) {
+    if (e.key === 'Enter')  { e.preventDefault(); submitFeed() }
+    if (e.key === 'Escape') { editingFeed = false }
   }
 
   // ── Delete ────────────────────────────────────────────────────────────────
@@ -199,11 +227,33 @@
     {/if}
 
     <div class="node-actions">
+      <button
+        class="act-btn"
+        class:feed-active={!!folder.feed_url}
+        onclick={(e) => { e.stopPropagation(); startFeedEdit() }}
+        title={folder.feed_url ? `Watching: ${folder.feed_url}` : 'Watch an RSS/Atom feed'}
+      ><Rss size={13} /></button>
       <button class="act-btn" onclick={(e) => { e.stopPropagation(); startCreate() }}  title="New subfolder"><Plus  size={13} /></button>
       <button class="act-btn" onclick={(e) => { e.stopPropagation(); startRename() }}  title="Rename"><Pencil size={13} /></button>
       <button class="act-btn danger" onclick={(e) => { e.stopPropagation(); showConfirm = true }} title="Delete"><Trash2 size={13} /></button>
     </div>
   </div>
+
+  <!-- Watched feed URL editor -->
+  {#if editingFeed}
+    <!-- svelte-ignore a11y_autofocus -->
+    <div class="new-child-row">
+      <span class="chevron-gap"></span>
+      <Rss size={15} class="folder-icon-sm" />
+      <input
+        class="inline-input"
+        bind:value={feedDraft}
+        placeholder="https://example.com/feed.xml — blank to stop watching"
+        onkeydown={onFeedKey}
+        autofocus
+      />
+    </div>
+  {/if}
 
   <!-- Children -->
   {#if expanded}
@@ -305,6 +355,7 @@
   }
   .act-btn:hover { background: var(--color-surface-3); color: var(--color-text-primary); }
   .act-btn.danger:hover { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
+  .act-btn.feed-active { color: var(--color-primary); }
 
   .children { padding-left: 16px; }
 

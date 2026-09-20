@@ -16,7 +16,7 @@
   import CopyCitation from '$lib/components/references/CopyCitation.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
   import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
-  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2 } from 'lucide-svelte'
+  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2, Link } from 'lucide-svelte'
   import type { Attachment } from '$lib/types/reference'
 
   let { data }: { data: PageData } = $props()
@@ -50,6 +50,11 @@
 
   let uploadingFile      = $state(false)
   let deleteAttachTarget = $state<Attachment | null>(null)
+
+  let linkSlideOpen = $state(false)
+  let newLinkUrl    = $state('')
+  let newLinkLabel  = $state('')
+  let savingLink    = $state(false)
 
   let pdfUrl           = $state<string | null>(null)
   let loadingPdfId     = $state<string | null>(null)
@@ -137,6 +142,23 @@
       window.open(url, '_blank')
     } catch {
       toast.error('Failed to download file')
+    }
+  }
+
+  async function addLink() {
+    if (!newLinkUrl.trim()) return
+    savingLink = true
+    try {
+      await referencesApi.addLinkAttachment(reference.id, newLinkUrl.trim(), newLinkLabel.trim())
+      newLinkUrl = ''
+      newLinkLabel = ''
+      toast.success('Link added')
+      linkSlideOpen = false
+      await invalidateAll()
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to add link')
+    } finally {
+      savingLink = false
     }
   }
 
@@ -330,7 +352,10 @@
         <div class="card-header">
           <h2 class="card-title">Attachments</h2>
           {#if reference.role === 'OWNER'}
-            <FileUpload onfile={uploadFile} loading={uploadingFile} />
+            <div class="attach-header-actions">
+              <button class="icon-btn" data-tooltip="Add link" onclick={() => linkSlideOpen = true}><Link size={20} /></button>
+              <FileUpload onfile={uploadFile} loading={uploadingFile} />
+            </div>
           {/if}
         </div>
         {#if activeAttachments.length === 0}
@@ -339,44 +364,60 @@
           <ul class="attach-list">
             {#each activeAttachments as attach}
               <li class="attach-item">
-                <FileText size={20} />
-                <div class="attach-info">
-                  <span class="attach-name">{attach.filename}</span>
-                  <span class="attach-size">{formatBytes(attach.size_bytes)}</span>
-                </div>
-                <div class="attach-actions">
-                  {#if attach.annotation_key !== null}
-                    <button
-                      class="icon-btn"
-                      onclick={() => viewAnnotatedPdf(attach)}
-                      data-tooltip="View with annotations"
-                      disabled={loadingAnnotId === attach.id}
-                    >
-                      <Eye size={20} />
-                    </button>
-                    <button
-                      class="icon-btn"
-                      onclick={() => viewPdf(attach)}
-                      data-tooltip="View original"
-                      disabled={loadingPdfId === attach.id}
-                    >
-                      <FileCheck size={20} />
-                    </button>
-                  {:else}
-                    <button
-                      class="icon-btn"
-                      onclick={() => viewPdf(attach)}
-                      data-tooltip="View"
-                      disabled={loadingPdfId === attach.id}
-                    >
-                      <Eye size={20} />
-                    </button>
-                  {/if}
-                  <button class="icon-btn" data-tooltip="Download" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
-                  {#if reference.role === 'OWNER'}
-                    <button class="icon-btn danger" data-tooltip="Delete" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
-                  {/if}
-                </div>
+                {#if attach.link_url !== null}
+                  <Link size={20} />
+                  <div class="attach-info">
+                    <span class="attach-name">{attach.filename}</span>
+                    <span class="attach-size">{attach.link_url}</span>
+                  </div>
+                  <div class="attach-actions">
+                    <a class="icon-btn" href={attach.link_url} target="_blank" rel="noopener noreferrer" data-tooltip="Open link">
+                      <ExternalLink size={20} />
+                    </a>
+                    {#if reference.role === 'OWNER'}
+                      <button class="icon-btn danger" data-tooltip="Delete" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
+                    {/if}
+                  </div>
+                {:else}
+                  <FileText size={20} />
+                  <div class="attach-info">
+                    <span class="attach-name">{attach.filename}</span>
+                    <span class="attach-size">{attach.size_bytes !== null ? formatBytes(attach.size_bytes) : ''}</span>
+                  </div>
+                  <div class="attach-actions">
+                    {#if attach.annotation_key !== null}
+                      <button
+                        class="icon-btn"
+                        onclick={() => viewAnnotatedPdf(attach)}
+                        data-tooltip="View with annotations"
+                        disabled={loadingAnnotId === attach.id}
+                      >
+                        <Eye size={20} />
+                      </button>
+                      <button
+                        class="icon-btn"
+                        onclick={() => viewPdf(attach)}
+                        data-tooltip="View original"
+                        disabled={loadingPdfId === attach.id}
+                      >
+                        <FileCheck size={20} />
+                      </button>
+                    {:else}
+                      <button
+                        class="icon-btn"
+                        onclick={() => viewPdf(attach)}
+                        data-tooltip="View"
+                        disabled={loadingPdfId === attach.id}
+                      >
+                        <Eye size={20} />
+                      </button>
+                    {/if}
+                    <button class="icon-btn" data-tooltip="Download" onclick={() => downloadAttachment(attach)}><Download size={20} /></button>
+                    {#if reference.role === 'OWNER'}
+                      <button class="icon-btn danger" data-tooltip="Delete" onclick={() => deleteAttachTarget = attach}><Trash2 size={20} /></button>
+                    {/if}
+                  </div>
+                {/if}
               </li>
             {/each}
           </ul>
@@ -425,6 +466,18 @@
       <textarea bind:value={newNote} rows={6} placeholder="Write your note…"></textarea>
     </FormField>
     <Button onclick={addNote} loading={savingNote} disabled={!newNote.trim()}>Save Note</Button>
+  </div>
+</SlideOver>
+
+<SlideOver open={linkSlideOpen} title="Add Link" onclose={() => linkSlideOpen = false}>
+  <div class="note-form">
+    <FormField label="URL">
+      <input type="url" bind:value={newLinkUrl} placeholder="https://…" />
+    </FormField>
+    <FormField label="Label (optional)">
+      <input type="text" bind:value={newLinkLabel} placeholder="Shown instead of the raw URL" />
+    </FormField>
+    <Button onclick={addLink} loading={savingLink} disabled={!newLinkUrl.trim()}>Save Link</Button>
   </div>
 </SlideOver>
 
@@ -572,8 +625,16 @@
     color: var(--color-text-primary); font-size: 0.875rem; font-family: inherit; outline: none;
   }
   .note-form :global(textarea:focus) { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
+  .note-form :global(input) {
+    width: 100%; padding: 8px 12px; border-radius: 6px; box-sizing: border-box;
+    border: 1px solid var(--color-surface-3); background: var(--color-surface-0);
+    color: var(--color-text-primary); font-size: 0.875rem; font-family: inherit; outline: none;
+  }
+  .note-form :global(input:focus) { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
 
   .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
+
+  .attach-header-actions { display: flex; align-items: center; gap: 4px; }
 
   .icon-btn {
     position: relative;

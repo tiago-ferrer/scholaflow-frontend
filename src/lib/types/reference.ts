@@ -32,12 +32,14 @@ export interface UserNote {
 export interface Attachment {
   id: string
   filename: string
-  s3_key: string
-  content_type: string
-  size_bytes: number
+  s3_key: string | null
+  content_type: string | null
+  size_bytes: number | null
   created_at: string
   deleted: boolean
   annotation_key: string | null
+  /** Non-null marks this as a link attachment (an external URL, no uploaded file). */
+  link_url: string | null
 }
 
 export interface Reference {
@@ -161,4 +163,21 @@ export interface PageResult<T> {
 export interface ReferenceSearchResult {
   reference: Reference
   score: number
+}
+
+// GET /references/duplicates — owned references grouped by matching DOI or citation key.
+export interface DuplicateGroup {
+  match_type: 'DOI' | 'CITATION_KEY'
+  match_value: string
+  items: Reference[]
+}
+
+// GET /references/authors — distinct author/editor name usage across the library.
+export interface AuthorUsage {
+  name: string
+  count: number
+}
+
+export interface MergeAuthorsResult {
+  updated_references: number
 }

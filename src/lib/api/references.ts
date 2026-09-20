@@ -1,7 +1,7 @@
 import { get } from 'svelte/store'
 import { api, makeApi, ApiError } from './client'
 import { authStore } from '$lib/stores/auth'
-import type { Reference, CreateReferencePayload, PatchReferencePayload, PageResult, BibImportJob, ReferenceSearchResult } from '$lib/types/reference'
+import type { Reference, CreateReferencePayload, PatchReferencePayload, PageResult, BibImportJob, ReferenceSearchResult, DuplicateGroup, AuthorUsage, MergeAuthorsResult } from '$lib/types/reference'
 import type { Viewer } from '$lib/types/viewer'
 
 const BASE = '/api/v1/references'
@@ -64,6 +64,20 @@ export function makeReferencesApi(fetchFn?: typeof fetch) {
     listViewers:  (id: string)                          => a.get<Viewer[]>(`${BASE}/${id}/viewers`),
     addViewer:    (id: string, viewer_username: string) => a.post<void>(`${BASE}/${id}/viewers`, { viewer_username }),
     removeViewer: (id: string, username: string)        => a.delete<void>(`${BASE}/${id}/viewers/${username}`),
+
+    // Fetches metadata from Crossref/Open Library/PubMed for a DOI, ISBN or PMID and returns it
+    // pre-filled in create-reference shape. Does NOT create the reference — review/edit, then
+    // call create() with the result.
+    lookup: (identifier: string) =>
+      a.get<CreateReferencePayload>(`${BASE}/lookup?identifier=${encodeURIComponent(identifier)}`),
+
+    findDuplicates: () => a.get<DuplicateGroup[]>(`${BASE}/duplicates`),
+    listAuthors:    () => a.get<AuthorUsage[]>(`${BASE}/authors`),
+    mergeAuthors:   (variants: string[], canonical: string) =>
+      a.post<MergeAuthorsResult>(`${BASE}/authors/merge`, { variants, canonical }),
+
+    addLinkAttachment: (id: string, url: string, label?: string) =>
+      a.post<Reference>(`${BASE}/${id}/attachments/link`, { url, label: label || null }),
   }
 }
 

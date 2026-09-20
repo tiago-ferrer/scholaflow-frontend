@@ -76,6 +76,11 @@ export const folders = {
     store.update(tree => mapTree(tree, f => (f.id === id ? { ...f, name } : f)))
   },
 
+  /** Optimistically patch arbitrary fields (e.g. feed_url) on a folder in place. */
+  updateFolder(id: string, patch: Partial<ReferenceFolder>) {
+    store.update(tree => mapTree(tree, f => (f.id === id ? { ...f, ...patch } : f)))
+  },
+
   /**
    * Optimistically move a folder to a new parent (or root when newParentId is null).
    * Extracts the subtree, removes it from its current position, then inserts it
