@@ -13,6 +13,12 @@ references/
   trash/
     +page.svelte        # Soft-deleted references (7-day TTL) with a restore action
     +page.ts
+  duplicates/
+    +page.svelte        # Owned references grouped by matching DOI or citation key
+    +page.ts
+  authors/
+    +page.svelte        # Author/editor name usage across the library + merge variants
+    +page.ts
   [id]/
     +layout.ts          # Loads reference by ID; shared by all sub-routes
     +page.svelte        # Reference detail: metadata, notes, attachments, viewers
@@ -56,6 +62,16 @@ Both views use `viewers/+page.svelte` which loads the appropriate URL from the A
 ## Trash
 
 `GET /references/trash` (owner-only) returns soft-deleted references, most recently deleted first — a backend table Scan, not a GSI query (deleted items are absent from the sparse owner-index). Linked from `FolderTree.svelte`'s bottom "library tools" section. Restoring uses the existing `referencesApi.restore(id)`.
+
+## Add by DOI/ISBN/PMID
+
+`AddByIdentifierModal.svelte` calls `referencesApi.lookup(identifier)` (`GET /references/lookup`), which fetches metadata from Crossref/Open Library/PubMed server-side and returns it pre-filled in create-reference shape — same "review, then create" flow as `FromBibTexModal`. Accessible from the "Add by ID" button on the references list.
+
+## Duplicates & Author Merge
+
+Linked from `FolderTree.svelte`'s bottom section (below "Unfiled"):
+- `/references/duplicates` lists owned references sharing a DOI or citation key, grouped, with a delete action per item.
+- `/references/authors` lists every distinct author/editor name with its usage count; selecting 2+ and setting a canonical name calls `referencesApi.mergeAuthors()` to rewrite them across the library.
 
 ## Create Form
 
