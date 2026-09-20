@@ -91,6 +91,10 @@
         ondisable?.()
         reset()
         onclose?.()
+      } else if (e instanceof ApiError && e.status === 400 && e.message.includes('exceeds the maximum allowed size')) {
+        toast.error(e.message)
+        reset()
+        onclose?.()
       } else if (e instanceof ApiError && e.status === 404) {
         toast.error('That notebook is no longer available — pick another.')
         selectedId = null

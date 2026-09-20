@@ -12,8 +12,20 @@ admin/
   costs/
     +page.svelte     # All-users storage + AI/transcription usage cost breakdown
   ai-configs/
-    +page.svelte     # Paper Summary Prompt (singleton, applies to every user)
+    +page.svelte     # Paper Summary Prompt + max PDF size for summaries (both singleton, apply to every user)
 ```
+
+`ai-configs/+page.svelte` fetches both settings from the same `GET /admin/prompts/paper-summary` response
+(`PaperSummaryPrompt` — `prompt_text` and `max_file_size_bytes`), but saves them independently via two
+separate `PUT`s (`adminPromptsApi.setPaperSummaryPrompt` / `setMaxFileSize`) — editing one never resends
+the other. The size field is entered/displayed in MB in the UI and converted to bytes at the API boundary;
+the API itself only ever speaks bytes.
+
+`costs/+page.svelte`'s `RESOURCE_LABELS` map (and the identical one in `../settings/+page.svelte`) must be
+kept in sync with whatever `by_resource` keys the backend reports — e.g. OpenAI chat usage is split by
+feature (`OPENAI_CHAT_TRANSCRIPTION_NOTE`, `OPENAI_CHAT_PAPER_SUMMARY`), not a single `OPENAI_CHAT` key.
+An unmapped key still renders (via `resourceLabel()`'s title-case fallback), so this map is a labeling
+nicety, not a correctness requirement — but keep it current when the backend adds a new cost category.
 
 ## Guard
 

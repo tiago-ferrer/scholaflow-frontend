@@ -17,6 +17,14 @@ export function makeAdminPromptsApi(fetchFn?: typeof fetch) {
         throw e
       }
     },
+    setMaxFileSize: async (maxFileSizeBytes: number): Promise<void> => {
+      try {
+        await a.put<unknown>(`${BASE}/max-file-size`, { max_file_size_bytes: maxFileSizeBytes })
+      } catch (e) {
+        if (e instanceof SyntaxError) return
+        throw e
+      }
+    },
   }
 }
 
