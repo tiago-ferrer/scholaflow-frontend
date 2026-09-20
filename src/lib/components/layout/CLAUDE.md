@@ -7,6 +7,7 @@ App shell components rendered once in the `(app)` group layout.
 ### `Sidebar.svelte`
 Left navigation sidebar.
 - Reads `NAV_SECTIONS` from `$lib/config/navigation.ts` to render nav items
+- Filters out any item with `adminOnly: true` unless `$isAdmin` (from `$lib/stores/auth`) is true
 - Reads list stores (`kanbanBoards`, `notebooks`, `transcriptionGroups`, etc.) to render dynamic sub-items
 - Calls `refresh*()` store functions on mount to populate dynamic sub-items
 - Controlled by `sidebarCollapsed`, `sidebarAutoHide` and `sidebarMobileOpen` from `$lib/stores/ui`

@@ -1,4 +1,4 @@
-import { FileText, FolderOpen, Plug, KanbanSquare, LayoutDashboard, Mic, NotebookPen, Settings, GanttChart, Puzzle, PenTool } from 'lucide-svelte'
+import { FileText, FolderOpen, Plug, KanbanSquare, LayoutDashboard, Mic, NotebookPen, Settings, GanttChart, Puzzle, PenTool, ShieldCheck, DollarSign, BrainCircuit } from 'lucide-svelte'
 
 export interface NavItem {
   label: string
@@ -7,6 +7,7 @@ export interface NavItem {
   icon: any
   badge?: string
   ownerOnly?: boolean
+  adminOnly?: boolean
   submenu?: NavItem[]
 }
 
@@ -45,6 +46,16 @@ export const NAV_SECTIONS: NavSection[] = [
         submenu: [
           { label: 'Usage', href: '/mcp/usage', icon: Plug },
           { label: 'API Keys', href: '/mcp/keys', icon: Plug },
+        ],
+      },
+      {
+        label: 'Admin',
+        href: '/admin',
+        icon: ShieldCheck,
+        adminOnly: true,
+        submenu: [
+          { label: 'Costs', href: '/admin/costs', icon: DollarSign },
+          { label: 'AI Configs', href: '/admin/ai-configs', icon: BrainCircuit },
         ],
       },
     ],

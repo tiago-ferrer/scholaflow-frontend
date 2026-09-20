@@ -13,6 +13,7 @@ interface NavItem {
   icon: any           // lucide-svelte component
   badge?: string
   ownerOnly?: boolean // hides item for non-owners
+  adminOnly?: boolean // hides item unless $isAdmin (ROLE_ADMIN) is true — checked in Sidebar.svelte
   submenu?: NavItem[] // enables collapsible sub-nav
 }
 
@@ -30,10 +31,18 @@ export const NAV_SECTIONS: NavSection[]
 
 **Library:** References, Notebooks, Transcription
 
-**System:** Settings, MCP (with submenu: Usage, API Keys)
+**System:** Settings, MCP (with submenu: Usage, API Keys), Admin (`adminOnly: true`, with submenu: Costs, AI Configs)
 
 ## Adding a new top-level route
 
 1. Add the route under `src/routes/(app)/your-feature/`
 2. Add an entry in `NAV_SECTIONS` in `navigation.ts` with label, href, and a `lucide-svelte` icon
 3. If the feature needs sidebar sub-items (like Transcription groups), create a store in `$lib/stores/` and call the refresh function in `Sidebar.svelte` on mount
+
+## Admin-only nav items
+
+Set `adminOnly: true` on a `NavItem` to hide it from the sidebar for non-admins. `Sidebar.svelte` filters
+each section's items with `{#if !item.adminOnly || $isAdmin}` (`isAdmin` from `$lib/stores/auth`, derived
+from the `ROLE_ADMIN` claim in the JWT). This is enforcement in the UI only — the corresponding route must
+also guard itself (see `src/routes/(app)/admin/+layout.ts`), since a non-admin can still navigate to the URL
+directly.

@@ -27,6 +27,7 @@ Checks `authStore` for a valid token. If missing, redirects to `/login` using `t
 | `transcription/` | Audio recording groups + transcripts + notes |
 | `mcp/` | Model Context Protocol usage stats + API key management |
 | `settings/` | User profile settings |
+| `admin/` | ROLE_ADMIN-only console (Costs, AI Configs) — guarded by its own `+layout.ts` on top of the group's auth guard |
 
 ## Common Patterns Across All Feature Routes
 
