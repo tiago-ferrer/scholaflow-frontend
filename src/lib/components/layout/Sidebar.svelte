@@ -89,22 +89,24 @@
         <span class="product-tagline">Research | Share | Connect</span>
       </div>
     {/if}
-    <button
-      class="collapse-btn"
-      class:auto-hide-logo={$sidebarAutoHide}
-      onclick={toggleSidebar}
-      aria-label="Toggle sidebar"
-      disabled={$sidebarAutoHide}
-      title={$sidebarAutoHide ? 'Auto-hide is on — hover the sidebar to expand it' : undefined}
-    >
-      {#if $sidebarAutoHide}
-        <img src="/icon_1024.png" alt="" class="brand-mark" />
-      {:else if collapsed}
-        <ChevronRight size={29} />
-      {:else}
-        <ChevronLeft size={29} />
-      {/if}
-    </button>
+    {#if !$sidebarAutoHide || collapsed}
+      <button
+        class="collapse-btn"
+        class:auto-hide-logo={$sidebarAutoHide}
+        onclick={toggleSidebar}
+        aria-label="Toggle sidebar"
+        disabled={$sidebarAutoHide}
+        title={$sidebarAutoHide ? 'Auto-hide is on — hover the sidebar to expand it' : undefined}
+      >
+        {#if $sidebarAutoHide}
+          <img src="/scholaflow-icon.svg" alt="" class="brand-mark" />
+        {:else if collapsed}
+          <ChevronRight size={29} />
+        {:else}
+          <ChevronLeft size={29} />
+        {/if}
+      </button>
+    {/if}
   </div>
 
   <nav class="sidebar-nav">
@@ -387,7 +389,7 @@
   .collapse-btn:disabled { cursor: default; opacity: 0.4; }
   .collapse-btn:disabled:hover { background: transparent; }
   .collapse-btn.auto-hide-logo:disabled { opacity: 1; }
-  .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; }
+  .brand-mark { width: 26px; height: 26px; }
 
   /* Hide collapse button on mobile */
   @media (max-width: 1019px) {
