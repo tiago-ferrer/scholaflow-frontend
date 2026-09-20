@@ -5,6 +5,10 @@ const storedCollapsed = browser ? localStorage.getItem('sidebar-collapsed') === 
 export const sidebarCollapsed = writable<boolean>(storedCollapsed)
 sidebarCollapsed.subscribe(v => { if (browser) localStorage.setItem('sidebar-collapsed', String(v)) })
 
+const storedAutoHide = browser ? localStorage.getItem('sidebar-auto-hide') === 'true' : false
+export const sidebarAutoHide = writable<boolean>(storedAutoHide)
+sidebarAutoHide.subscribe(v => { if (browser) localStorage.setItem('sidebar-auto-hide', String(v)) })
+
 const storedTheme = browser ? (localStorage.getItem('theme') ?? 'light') : 'light'
 export const theme = writable<'light' | 'dark'>(storedTheme as 'light' | 'dark')
 theme.subscribe(v => {
@@ -18,5 +22,6 @@ export const sidebarMobileOpen = writable(false)
 
 export function toggleTheme() { theme.update(t => t === 'light' ? 'dark' : 'light') }
 export function toggleSidebar() { sidebarCollapsed.update(c => !c) }
+export function toggleSidebarAutoHide() { sidebarAutoHide.update(v => !v) }
 export function toggleMobileSidebar() { sidebarMobileOpen.update(v => !v) }
 export function closeMobileSidebar() { sidebarMobileOpen.set(false) }

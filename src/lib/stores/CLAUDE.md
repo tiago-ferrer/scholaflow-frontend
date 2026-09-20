@@ -11,10 +11,11 @@ Svelte stores for cross-component state. These are the only place where state li
 - `currentEmail` — derived email string
 
 ### `ui.ts`
-- `sidebarCollapsed` — writable boolean; persisted to `localStorage`
+- `sidebarCollapsed` — writable boolean; persisted to `localStorage`; the user's manual collapse/expand state
+- `sidebarAutoHide` — writable boolean; persisted to `localStorage`; toggled from Settings > Appearance. When `true`, `Sidebar.svelte` ignores `sidebarCollapsed` and derives its own `collapsed` state from local hover tracking instead (always collapsed at rest, expands on `mouseenter`, collapses on `mouseleave`) — see that component's `CLAUDE.md`. `+layout.svelte`'s `.main-area` margin uses `$sidebarAutoHide || $sidebarCollapsed` so the hover-expanded sidebar overlays content instead of pushing it.
 - `sidebarMobileOpen` — writable boolean
 - `theme` — writable `'light' | 'dark'`; applies `data-theme` attribute on `<html>`; persisted to `localStorage`
-- `toggleTheme()`, `toggleSidebar()` — helper functions
+- `toggleTheme()`, `toggleSidebar()`, `toggleSidebarAutoHide()` — helper functions
 
 ### `toast.ts`
 - Custom store returned by `createToastStore()`

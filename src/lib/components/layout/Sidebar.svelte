@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores'
   import { onMount } from 'svelte'
-  import { sidebarCollapsed, toggleSidebar, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
+  import { sidebarCollapsed, sidebarAutoHide, toggleSidebar, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
   import { currentUser } from '$lib/stores/auth'
   import { NAV_SECTIONS } from '$lib/config/navigation'
   import { transcriptionGroups, refreshTranscriptionGroups } from '$lib/stores/transcriptionGroups'
@@ -12,6 +12,16 @@
   import { excalidrawDrawings, refreshExcalidrawDrawings } from '$lib/stores/excalidrawDrawings'
   import { ChevronLeft, ChevronRight, Plus } from 'lucide-svelte'
   import Avatar from '$lib/components/ui/Avatar.svelte'
+
+  let hovering = $state(false)
+  const collapsed = $derived($sidebarAutoHide ? !hovering : $sidebarCollapsed)
+
+  function onMouseEnter() {
+    if ($sidebarAutoHide) hovering = true
+  }
+  function onMouseLeave() {
+    if ($sidebarAutoHide) hovering = false
+  }
 
   const activeHref = $derived($page.url.pathname)
   const visibleGroups = $derived($transcriptionGroups.filter(g => !g.deleted))
@@ -65,19 +75,31 @@
 
 <aside
   class="sidebar"
-  class:collapsed={$sidebarCollapsed}
+  class:collapsed={collapsed}
   class:mobile-open={$sidebarMobileOpen}
+  class:overlay-expanded={$sidebarAutoHide && !collapsed}
+  onmouseenter={onMouseEnter}
+  onmouseleave={onMouseLeave}
   aria-label="Main navigation"
 >
-  <div class="sidebar-header" class:collapsed={$sidebarCollapsed}>
-    {#if !$sidebarCollapsed}
+  <div class="sidebar-header" class:collapsed={collapsed}>
+    {#if !collapsed}
       <div class="product-brand">
         <span class="product-name"><span class="logo-paper">schola</span><span class="logo-hub">flow</span></span>
         <span class="product-tagline">Research | Share | Connect</span>
       </div>
     {/if}
-    <button class="collapse-btn" onclick={toggleSidebar} aria-label="Toggle sidebar">
-      {#if $sidebarCollapsed}
+    <button
+      class="collapse-btn"
+      class:auto-hide-logo={$sidebarAutoHide}
+      onclick={toggleSidebar}
+      aria-label="Toggle sidebar"
+      disabled={$sidebarAutoHide}
+      title={$sidebarAutoHide ? 'Auto-hide is on — hover the sidebar to expand it' : undefined}
+    >
+      {#if $sidebarAutoHide}
+        <img src="/icon_1024.png" alt="" class="brand-mark" />
+      {:else if collapsed}
         <ChevronRight size={29} />
       {:else}
         <ChevronLeft size={29} />
@@ -87,7 +109,7 @@
 
   <nav class="sidebar-nav">
     {#each NAV_SECTIONS as section}
-      {#if section.title && !$sidebarCollapsed}
+      {#if section.title && !collapsed}
         <p class="section-label">{section.title}</p>
       {/if}
       {#each section.items as item}
@@ -97,18 +119,18 @@
             href={item.href}
             class="nav-item"
             class:active
-            title={$sidebarCollapsed ? item.label : undefined}
+            title={collapsed ? item.label : undefined}
             aria-current={active ? 'page' : undefined}
           >
-            <item.icon size={$sidebarCollapsed ? 20 : 20} />
-            {#if !$sidebarCollapsed}
+            <item.icon size={collapsed ? 20 : 20} />
+            {#if !collapsed}
               <span>{item.label}</span>
             {/if}
-            {#if item.badge && !$sidebarCollapsed}
+            {#if item.badge && !collapsed}
               <span class="badge">{item.badge}</span>
             {/if}
           </a>
-          {#if item.href === '/notebooks' && !$sidebarCollapsed}
+          {#if item.href === '/notebooks' && !collapsed}
             <button
               class="submenu-toggle"
               onclick={toggleNotebooks}
@@ -118,7 +140,7 @@
               <ChevronRight size={18} class={notebooksExpanded ? 'rotated' : ''} />
             </button>
           {/if}
-          {#if item.href === '/transcription' && !$sidebarCollapsed}
+          {#if item.href === '/transcription' && !collapsed}
             <button
               class="submenu-toggle"
               onclick={toggleTranscriptions}
@@ -128,7 +150,7 @@
               <ChevronRight size={18} class={transcriptionExpanded ? 'rotated' : ''} />
             </button>
           {/if}
-          {#if item.href === '/kanban' && !$sidebarCollapsed}
+          {#if item.href === '/kanban' && !collapsed}
             <button
               class="submenu-toggle"
               onclick={toggleKanban}
@@ -138,7 +160,7 @@
               <ChevronRight size={18} class={kanbanExpanded ? 'rotated' : ''} />
             </button>
           {/if}
-          {#if item.href === '/gantt' && !$sidebarCollapsed}
+          {#if item.href === '/gantt' && !collapsed}
             <button
               class="submenu-toggle"
               onclick={toggleGantt}
@@ -148,7 +170,7 @@
               <ChevronRight size={18} class={ganttExpanded ? 'rotated' : ''} />
             </button>
           {/if}
-          {#if item.href === '/projects' && !$sidebarCollapsed}
+          {#if item.href === '/projects' && !collapsed}
             <button
               class="submenu-toggle"
               onclick={toggleProjects}
@@ -158,7 +180,7 @@
               <ChevronRight size={18} class={projectsExpanded ? 'rotated' : ''} />
             </button>
           {/if}
-          {#if item.href === '/excalidraw' && !$sidebarCollapsed}
+          {#if item.href === '/excalidraw' && !collapsed}
             <button
               class="submenu-toggle"
               onclick={toggleExcalidraw}
@@ -168,7 +190,7 @@
               <ChevronRight size={18} class={excalidrawExpanded ? 'rotated' : ''} />
             </button>
           {/if}
-          {#if item.submenu && !$sidebarCollapsed}
+          {#if item.submenu && !collapsed}
             <button
               class="submenu-toggle"
               onclick={() => {
@@ -181,7 +203,7 @@
             </button>
           {/if}
         </div>
-        {#if item.submenu && !$sidebarCollapsed && item.href === '/mcp' && mcpApiKeysExpanded}
+        {#if item.submenu && !collapsed && item.href === '/mcp' && mcpApiKeysExpanded}
           {#each item.submenu as subitem}
             {@const subitemActive = activeHref.startsWith(subitem.href)}
             <a
@@ -195,7 +217,7 @@
             </a>
           {/each}
         {/if}
-        {#if item.href === '/kanban' && !$sidebarCollapsed && kanbanExpanded}
+        {#if item.href === '/kanban' && !collapsed && kanbanExpanded}
           {#each visibleBoards as board}
             {@const boardActive = activeHref.startsWith(`/kanban/${board.id}`)}
             <a
@@ -209,7 +231,7 @@
             </a>
           {/each}
         {/if}
-        {#if item.href === '/transcription' && !$sidebarCollapsed && transcriptionExpanded}
+        {#if item.href === '/transcription' && !collapsed && transcriptionExpanded}
           {#each visibleGroups as group}
             {@const groupActive = activeHref.startsWith(`/transcription/${group.id}`)}
             <a
@@ -227,7 +249,7 @@
             <span>New group</span>
           </a>
         {/if}
-        {#if item.href === '/gantt' && !$sidebarCollapsed && ganttExpanded}
+        {#if item.href === '/gantt' && !collapsed && ganttExpanded}
           {#each visibleGanttCharts as chart}
             {@const chartActive = activeHref.startsWith(`/gantt/${chart.id}`)}
             <a
@@ -245,7 +267,7 @@
             <span>New chart</span>
           </a>
         {/if}
-        {#if item.href === '/excalidraw' && !$sidebarCollapsed && excalidrawExpanded}
+        {#if item.href === '/excalidraw' && !collapsed && excalidrawExpanded}
           {#each visibleDrawings as drawing}
             {@const drawingActive = activeHref.startsWith(`/excalidraw/${drawing.id}`)}
             <a
@@ -263,7 +285,7 @@
             <span>New drawing</span>
           </a>
         {/if}
-        {#if item.href === '/projects' && !$sidebarCollapsed && projectsExpanded}
+        {#if item.href === '/projects' && !collapsed && projectsExpanded}
           {#each visibleProjects as project}
             {@const projectActive = activeHref.startsWith(`/projects/${project.id}`)}
             <a
@@ -281,7 +303,7 @@
             <span>New project</span>
           </a>
         {/if}
-        {#if item.href === '/notebooks' && !$sidebarCollapsed && notebooksExpanded}
+        {#if item.href === '/notebooks' && !collapsed && notebooksExpanded}
           {#each visibleNotebooks as nb}
             {@const nbActive = activeHref.startsWith(`/notebooks/${nb.id}`)}
             <a
@@ -303,13 +325,13 @@
     {/each}
   </nav>
 
-  {#if !$sidebarCollapsed}
-    <div class="sidebar-footer">
+  {#if !collapsed}
+    <a href="/settings" class="sidebar-footer" aria-current={activeHref.startsWith('/settings') ? 'page' : undefined}>
       <div class="user-chip">
         <Avatar name={$currentUser ?? 'U'} size={40} />
         <span class="username">{$currentUser}</span>
       </div>
-    </div>
+    </a>
   {/if}
 </aside>
 
@@ -362,11 +384,18 @@
     flex-shrink: 0;
   }
   .collapse-btn:hover { background: var(--color-surface-2); }
+  .collapse-btn:disabled { cursor: default; opacity: 0.4; }
+  .collapse-btn:disabled:hover { background: transparent; }
+  .collapse-btn.auto-hide-logo:disabled { opacity: 1; }
+  .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; }
 
   /* Hide collapse button on mobile */
   @media (max-width: 1019px) {
     .collapse-btn { display: none; }
   }
+
+  /* Auto-hide: sidebar overlays content while hover-expanded, so it needs its own shadow */
+  .sidebar.overlay-expanded { box-shadow: var(--shadow-2); }
 
   .sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
   .section-label {
@@ -433,8 +462,10 @@
   }
   .nav-subitem-new:hover { color: var(--color-primary); }
   .sidebar-footer {
-    padding: 12px 16px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
+    display: block; padding: 12px 16px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
+    text-decoration: none; transition: background var(--transition-standard);
   }
-  .user-chip { display: flex; align-items: center; gap: 10px; }
+  .sidebar-footer:hover, .sidebar-footer[aria-current="page"] { background: var(--color-surface-2); }
+  .user-chip { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .username { font-size: 0.8125rem; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>
