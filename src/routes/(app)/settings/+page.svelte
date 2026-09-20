@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import { theme, toggleTheme } from '$lib/stores/ui'
+  import { theme, toggleTheme, sidebarAutoHide, toggleSidebarAutoHide } from '$lib/stores/ui'
   import { authStore, currentUser, currentEmail, isAdmin } from '$lib/stores/auth'
   import { authApi } from '$lib/api/auth'
   import { costsApi } from '$lib/api/costs'
@@ -295,6 +295,18 @@
         {/if}
       </button>
     </div>
+
+    <div class="divider"></div>
+    <div class="setting-row">
+      <div>
+        <span class="label">Auto-hide sidebar</span>
+        <span class="hint">Keep the sidebar collapsed; hover it to expand, move away to collapse it again</span>
+      </div>
+      <label class="switch">
+        <input type="checkbox" checked={$sidebarAutoHide} onchange={toggleSidebarAutoHide} />
+        <span class="switch-track"></span>
+      </label>
+    </div>
   </div>
 
   <!-- Storage Usage -->
@@ -486,6 +498,21 @@
     font-size: 0.875rem; color: var(--color-text-primary);
   }
   .theme-toggle:hover { background: var(--color-surface-2); }
+
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .switch-track {
+    position: absolute; inset: 0; background: var(--color-surface-3); border-radius: 999px;
+    transition: background var(--transition-standard);
+  }
+  .switch-track::before {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; box-shadow: var(--shadow-1);
+    transition: transform var(--transition-standard);
+  }
+  .switch input:checked + .switch-track { background: var(--color-primary); }
+  .switch input:checked + .switch-track::before { transform: translateX(18px); }
+  .switch input:focus-visible + .switch-track { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
   /* Storage */
   .storage-grid {

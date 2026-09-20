@@ -9,9 +9,20 @@ Left navigation sidebar.
 - Reads `NAV_SECTIONS` from `$lib/config/navigation.ts` to render nav items
 - Reads list stores (`kanbanBoards`, `notebooks`, `transcriptionGroups`, etc.) to render dynamic sub-items
 - Calls `refresh*()` store functions on mount to populate dynamic sub-items
-- Controlled by `sidebarCollapsed` and `sidebarMobileOpen` from `$lib/stores/ui`
+- Controlled by `sidebarCollapsed`, `sidebarAutoHide` and `sidebarMobileOpen` from `$lib/stores/ui`
 - Uses `<item.icon />` pattern for lucide icons — NOT `<svelte:component this={item.icon} />`
 - Active item highlighted by matching `$page.url.pathname`
+- Footer user chip (`Avatar` + username) is an `<a href="/settings">`, not a plain `<div>` — clicking it navigates to Settings
+
+**Auto-hide mode** (toggled from Settings > Appearance, `sidebarAutoHide`): the template's `collapsed`
+value is a local `$derived` — `$sidebarAutoHide ? !hovering : $sidebarCollapsed` — not `$sidebarCollapsed`
+directly, so every `{#if !collapsed}` / `class:collapsed={collapsed}` in the markup reacts to hover too.
+`hovering` is local `$state`, flipped by `onmouseenter`/`onmouseleave` on the `<aside>` (no-ops when
+auto-hide is off). The manual collapse chevron is `disabled` (not hidden) while auto-hide is on, since
+the resting state is enforced automatically. `+layout.svelte`'s `.main-area` margin only reacts to
+`$sidebarAutoHide || $sidebarCollapsed` — never to `hovering` — so a hover-expanded sidebar overlays
+the content (via its existing `position: fixed`) instead of pushing it; `.sidebar.overlay-expanded` adds
+`--shadow-2` for separation in that state.
 
 ### `TopBar.svelte`
 No longer a visible bar on desktop (removed as redundant with the per-page `<h1>`

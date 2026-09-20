@@ -2,7 +2,7 @@
   import { page, navigating } from '$app/stores'
   import { fly } from 'svelte/transition'
   import { cubicOut } from 'svelte/easing'
-  import { sidebarCollapsed, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
+  import { sidebarCollapsed, sidebarAutoHide, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
   import Sidebar from '$lib/components/layout/Sidebar.svelte'
   import TopBar from '$lib/components/layout/TopBar.svelte'
   import NavLoadingOverlay from '$lib/components/layout/NavLoadingOverlay.svelte'
@@ -21,7 +21,7 @@
 
   <div
     class="main-area"
-    class:collapsed={$sidebarCollapsed}
+    class:collapsed={$sidebarAutoHide || $sidebarCollapsed}
   >
     <TopBar />
     <div class="content-area">
