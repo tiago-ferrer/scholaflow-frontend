@@ -304,12 +304,12 @@
   </nav>
 
   {#if !$sidebarCollapsed}
-    <div class="sidebar-footer">
+    <a href="/settings" class="sidebar-footer" aria-current={activeHref.startsWith('/settings') ? 'page' : undefined}>
       <div class="user-chip">
         <Avatar name={$currentUser ?? 'U'} size={40} />
         <span class="username">{$currentUser}</span>
       </div>
-    </div>
+    </a>
   {/if}
 </aside>
 
@@ -433,8 +433,10 @@
   }
   .nav-subitem-new:hover { color: var(--color-primary); }
   .sidebar-footer {
-    padding: 12px 16px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
+    display: block; padding: 12px 16px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
+    text-decoration: none; transition: background var(--transition-standard);
   }
-  .user-chip { display: flex; align-items: center; gap: 10px; }
+  .sidebar-footer:hover, .sidebar-footer[aria-current="page"] { background: var(--color-surface-2); }
+  .user-chip { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .username { font-size: 0.8125rem; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>
