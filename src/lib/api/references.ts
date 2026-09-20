@@ -31,6 +31,7 @@ export function makeReferencesApi(fetchFn?: typeof fetch) {
     patch:       (id: string, payload: PatchReferencePayload)   => a.patch<Reference>(`${BASE}/${id}`, payload),
     remove:      (id: string)                                   => a.delete<void>(`${BASE}/${id}`),
     restore:     (id: string)                                   => a.put<Reference>(`${BASE}/${id}/restore`, {}),
+    listTrash:   ()                                              => a.get<Reference[]>(`${BASE}/trash`),
 
     addNote:     (id: string, note: string)                     => a.post<Reference>(`${BASE}/${id}/notes`, { note }),
     deleteNote:  (id: string, noteId: string)                   => a.delete<Reference>(`${BASE}/${id}/notes/${noteId}`),

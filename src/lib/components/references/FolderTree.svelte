@@ -6,7 +6,7 @@
   import { toast } from '$lib/stores/toast'
   import { ApiError } from '$lib/api/client'
   import FolderNode from './FolderNode.svelte'
-  import { FolderPlus, Layers, Inbox } from 'lucide-svelte'
+  import { FolderPlus, Layers, Inbox, Trash2 } from 'lucide-svelte'
 
   interface Props {
     /** null = All References, 'unfiled' = Unfiled, uuid = specific folder */
@@ -176,6 +176,14 @@
     <Inbox size={15} />
     <span>Unfiled</span>
   </button>
+
+  <!-- Library maintenance tools -->
+  <div class="tools-section">
+    <a class="fixed-entry" href="/references/trash">
+      <Trash2 size={15} />
+      <span>Trash</span>
+    </a>
+  </div>
 </nav>
 
 <style>
@@ -198,6 +206,12 @@
     background: var(--color-primary-subtle);
     color: var(--color-primary);
     font-weight: 500;
+  }
+  a.fixed-entry { text-decoration: none; box-sizing: border-box; }
+
+  .tools-section {
+    display: flex; flex-direction: column; gap: 2px;
+    margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--color-surface-3); flex-shrink: 0;
   }
 
   .folder-section { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
