@@ -3,6 +3,7 @@ import { api, makeApi, ApiError } from './client'
 import { authStore } from '$lib/stores/auth'
 import type { Reference, CreateReferencePayload, PatchReferencePayload, PageResult, BibImportJob, ReferenceSearchResult, DuplicateGroup, AuthorUsage, MergeAuthorsResult } from '$lib/types/reference'
 import type { Viewer } from '$lib/types/viewer'
+import type { NotebookPost } from '$lib/types/notebook'
 
 const BASE = '/api/v1/references'
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
@@ -79,6 +80,16 @@ export function makeReferencesApi(fetchFn?: typeof fetch) {
 
     addLinkAttachment: (id: string, url: string, label?: string) =>
       a.post<Reference>(`${BASE}/${id}/attachments/link`, { url, label: label || null }),
+
+    // AI paper summary — generates and saves a notebook post from the paper's PDF. Synchronous
+    // and can take 5-20s (calls OpenAI server-side). No idempotency protection: a duplicate
+    // call creates a duplicate post, so callers must disable the trigger while in flight.
+    summarizePost: (id: string, notebookId: string) =>
+      a.post<NotebookPost>(`${BASE}/${id}/summarize-post`, { notebook_id: notebookId }),
+
+    // The caller's own notebook posts that reference this paper (not "who can see this paper").
+    // Soft-deleted posts excluded. Returns [] for a paper the caller can't see — never 404s.
+    listPosts: (id: string) => a.get<NotebookPost[]>(`${BASE}/${id}/posts`),
   }
 }
 
