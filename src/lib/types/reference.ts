@@ -88,6 +88,10 @@ export interface Reference {
   deleted: boolean
   deleted_at: string | null
   ttl_expiry: number | null
+
+  starred: boolean | null
+  read: boolean | null
+  related_ids: string[] | null
 }
 
 export interface CreateReferencePayload {
@@ -115,7 +119,11 @@ export interface CreateReferencePayload {
   citation_count?: number | null
 }
 
-export type PatchReferencePayload = Partial<CreateReferencePayload>
+export type PatchReferencePayload = Partial<CreateReferencePayload> & {
+  starred?: boolean
+  read?: boolean
+  related_ids?: string[]
+}
 
 export interface BibImportSkipped {
   citation_key: string

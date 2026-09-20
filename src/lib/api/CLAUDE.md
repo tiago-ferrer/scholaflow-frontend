@@ -49,6 +49,7 @@ export const notebooksApi = makeNotebooksApi()
 | `transcription.ts` | `/api/v1/transcription` | Groups, recordings, upload, notes, AI generate |
 | `apikeys.ts` | `/api/v1/mcp/keys` | API key CRUD |
 | `waitlist.ts` | `/api/v1/waitlist` | Landing page waitlist join |
+| `savedSearches.ts` | `/api/v1/saved-searches` | Saved semantic-search queries ("smart collections") — CRUD |
 | `client.ts` | — | `makeApi`, `ApiError`, `api` singleton |
 
 ## Pagination

@@ -1,12 +1,15 @@
 <script lang="ts">
   import type { PageData } from './$types'
+  import { onMount } from 'svelte'
   import { goto, invalidateAll } from '$app/navigation'
   import { referencesApi } from '$lib/api/references'
+  import { savedSearchesApi } from '$lib/api/savedSearches'
   import { ApiError } from '$lib/api/client'
   import { toast } from '$lib/stores/toast'
   import { folders } from '$lib/stores/folders'
   import type { Reference, ReferenceSearchResult } from '$lib/types/reference'
   import type { ReferenceFolder } from '$lib/types/folder'
+  import type { SavedSearch } from '$lib/types/savedSearch'
   import Button from '$lib/components/ui/Button.svelte'
   import StatusChip from '$lib/components/ui/StatusChip.svelte'
   import Spinner from '$lib/components/ui/Spinner.svelte'
@@ -21,7 +24,7 @@
   import ExportBibFolderPanel from '$lib/components/references/ExportBibFolderPanel.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
   import { formatDate } from '$lib/utils/format'
-  import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3, FileUp, FolderOpen, FolderX, Search, X, Download, Fingerprint } from 'lucide-svelte'
+  import { Plus, Eye, Pencil, Trash2, Users, BookMarked, Columns3, FileUp, FolderOpen, FolderX, Search, X, Download, Fingerprint, Star, BookmarkPlus } from 'lucide-svelte'
 
   let { data }: { data: PageData } = $props()
 
@@ -152,6 +155,50 @@
 
   const searchReferences = $derived((searchResults ?? []).map(r => r.reference))
 
+  // ── Saved searches ("smart collections") ────────────────────────────────
+  let savedSearches      = $state<SavedSearch[]>([])
+  let savingSearch       = $state(false)
+  let showSaveSearchForm = $state(false)
+  let saveSearchName     = $state('')
+
+  onMount(async () => {
+    try {
+      savedSearches = await savedSearchesApi.list()
+    } catch { /* non-critical — leave the panel empty on failure */ }
+  })
+
+  function runSavedSearch(s: SavedSearch) {
+    searchQuery = s.query
+    submitSearch()
+  }
+
+  async function saveCurrentSearch() {
+    const name = saveSearchName.trim()
+    if (!name || !isSearchActive) return
+    savingSearch = true
+    try {
+      const created = await savedSearchesApi.create({ name, query: submittedQuery })
+      savedSearches = [created, ...savedSearches]
+      showSaveSearchForm = false
+      saveSearchName = ''
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to save search')
+    } finally {
+      savingSearch = false
+    }
+  }
+
+  async function deleteSavedSearch(id: string) {
+    const snap = savedSearches
+    savedSearches = savedSearches.filter(s => s.id !== id)
+    try {
+      await savedSearchesApi.remove(id)
+    } catch (e) {
+      savedSearches = snap
+      toast.error(e instanceof ApiError ? e.message : 'Failed to delete saved search')
+    }
+  }
+
   // ── Filters (only used when no folder active) ──────────────────────────────
   type Filter = 'all' | 'owner' | 'shared'
   let filter = $state<Filter>('all')
@@ -228,6 +275,17 @@
 
   async function removeFromFolder(refId: string) {
     await assignFolder(refId, null)
+  }
+
+  // ── Favorite toggle ──────────────────────────────────────────────────────
+  async function toggleStar(ref: Reference, e: MouseEvent) {
+    e.stopPropagation()
+    try {
+      await referencesApi.patch(ref.id, { starred: !ref.starred })
+      await invalidateAll()
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : 'Failed to update')
+    }
   }
 
   // Close folder picker when clicking outside
@@ -309,7 +367,37 @@
       {#if !searching}<Search size={16} />{/if}
       Search
     </Button>
+    {#if isSearchActive}
+      <button class="icon-btn" title="Save this search" onclick={() => { showSaveSearchForm = true; saveSearchName = submittedQuery }}>
+        <BookmarkPlus size={20} />
+      </button>
+    {/if}
   </div>
+
+  {#if showSaveSearchForm}
+    <div class="save-search-row">
+      <input
+        type="text"
+        class="search-input"
+        bind:value={saveSearchName}
+        placeholder="Name this saved search…"
+        onkeydown={(e) => { if (e.key === 'Enter') saveCurrentSearch() }}
+      />
+      <Button size="sm" loading={savingSearch} disabled={!saveSearchName.trim()} onclick={saveCurrentSearch}>Save</Button>
+      <button class="search-clear" title="Cancel" onclick={() => showSaveSearchForm = false}><X size={16} /></button>
+    </div>
+  {/if}
+
+  {#if savedSearches.length > 0}
+    <div class="saved-search-pills">
+      {#each savedSearches as s (s.id)}
+        <div class="saved-search-pill">
+          <button class="pill-label" onclick={() => runSavedSearch(s)}>{s.name}</button>
+          <button class="pill-remove" title="Delete saved search" onclick={() => deleteSavedSearch(s.id)}><X size={13} /></button>
+        </div>
+      {/each}
+    </div>
+  {/if}
 
   <div class="body">
     <!-- Folder sidebar -->
@@ -397,6 +485,7 @@
           <table class="data-table">
             <thead>
               <tr>
+                <th class="star-col"></th>
                 <th>Title</th>
                 {#if col('type')}<th>Type</th>{/if}
                 {#if col('authors')}<th>Authors</th>{/if}
@@ -414,7 +503,19 @@
                   ondragstart={(e) => onRefDragStart(e, reference.id)}
                   class:dragging={assigningRefId === reference.id}
                 >
-                  <td class="title-cell"><a href="/references/{reference.id}" class="paper-link">{reference.title}</a></td>
+                  <td class="star-col">
+                    <button
+                      class="icon-btn star-btn"
+                      class:starred={reference.starred}
+                      title={reference.starred ? 'Unstar' : 'Star'}
+                      onclick={(e) => toggleStar(reference, e)}
+                    >
+                      <Star size={18} fill={reference.starred ? 'currentColor' : 'none'} />
+                    </button>
+                  </td>
+                  <td class="title-cell">
+                    <a href="/references/{reference.id}" class="paper-link" class:unread={reference.read === false}>{reference.title}</a>
+                  </td>
                   {#if col('type')}<td><span class="entry-badge">{reference.entry_type}</span></td>{/if}
                   {#if col('authors')}<td class="authors-cell">{reference.author?.join(', ') ?? '—'}</td>{/if}
                   {#if col('year')}<td>{reference.year ?? '—'}</td>{/if}
@@ -490,8 +591,16 @@
               onclick={() => goto(`/references/${reference.id}`)}
             >
               <div class="card-top">
-                <a href="/references/{reference.id}" class="paper-link card-title">{reference.title}</a>
+                <a href="/references/{reference.id}" class="paper-link card-title" class:unread={reference.read === false}>{reference.title}</a>
                 <div class="card-badges">
+                  <button
+                    class="icon-btn star-btn"
+                    class:starred={reference.starred}
+                    title={reference.starred ? 'Unstar' : 'Star'}
+                    onclick={(e) => toggleStar(reference, e)}
+                  >
+                    <Star size={18} fill={reference.starred ? 'currentColor' : 'none'} />
+                  </button>
                   <span class="entry-badge">{reference.entry_type}</span>
                   <StatusChip label={reference.role} variant={reference.role === 'OWNER' ? 'info' : 'neutral'} />
                 </div>
@@ -614,6 +723,29 @@
     padding: 48px 24px; color: var(--color-text-secondary); font-size: 0.875rem;
   }
 
+  .save-search-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; margin: -8px 0 16px;
+    background: var(--color-surface-1); border: 1px solid var(--color-surface-3);
+    border-radius: 10px;
+  }
+  .save-search-row .search-input { flex: 1; }
+
+  .saved-search-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: -8px 0 16px; }
+  .saved-search-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 4px 3px 10px; border-radius: 14px;
+    background: var(--color-surface-2); font-size: 0.8125rem;
+  }
+  .pill-label { background: none; border: none; cursor: pointer; padding: 0; color: var(--color-text-primary); }
+  .pill-label:hover { color: var(--color-primary); }
+  .pill-remove {
+    display: flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%; border: none; cursor: pointer;
+    background: transparent; color: var(--color-text-secondary);
+  }
+  .pill-remove:hover { background: var(--color-surface-3); color: var(--color-error); }
+
   /* Two-column body */
   .body { display: flex; gap: 16px; align-items: flex-start; }
 
@@ -701,8 +833,15 @@
   .date-cell { white-space: nowrap; color: var(--color-text-secondary); font-size: 0.8125rem; }
   .paper-link { color: var(--color-text-primary); text-decoration: none; font-weight: 500; }
   .paper-link:hover { color: var(--color-primary); }
+  .paper-link.unread { font-weight: 700; }
   .actions-col { width: 1%; }
   .actions-cell { display: flex; align-items: center; justify-content: center; gap: 2px; }
+
+  .star-col { width: 1%; }
+  .star-btn { color: var(--color-text-disabled); }
+  .star-btn:hover { color: var(--color-text-secondary); }
+  .star-btn.starred { color: #f5b301; }
+  .star-btn.starred:hover { color: #f5b301; }
 
   /* Folder picker */
   .folder-pick-wrap { position: relative; }
