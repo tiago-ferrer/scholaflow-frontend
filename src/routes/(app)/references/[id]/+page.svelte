@@ -16,6 +16,7 @@
   import CopyCitation from '$lib/components/references/CopyCitation.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
   import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
+  import { tagChipStyle } from '$lib/utils/tag-color'
   import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2, Link, Star, Link2, X } from 'lucide-svelte'
   import type { Attachment, Reference } from '$lib/types/reference'
 
@@ -352,7 +353,7 @@
             <span class="meta-label">Categories</span>
             <div class="chip-list">
               {#each reference.categories as cat}
-                <span class="cat-chip">{cat}</span>
+                <span class="cat-chip" style={tagChipStyle(cat)}>{cat}</span>
               {/each}
             </div>
           {/if}
