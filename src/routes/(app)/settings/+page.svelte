@@ -4,6 +4,7 @@
   import { authStore, currentUser, currentEmail, isAdmin } from '$lib/stores/auth'
   import { authApi } from '$lib/api/auth'
   import { costsApi } from '$lib/api/costs'
+  import { adminPromptsApi } from '$lib/api/adminPrompts'
   import { ApiError } from '$lib/api/client'
   import { toast } from '$lib/stores/toast'
   import { Sun, Moon, RefreshCw, LogOut } from 'lucide-svelte'
@@ -138,6 +139,47 @@
   $effect(() => {
     if ($isAdmin) loadAllStorage()
   })
+
+  // Paper Summary Prompt (admin only, singleton)
+  let paperSummaryPrompt        = $state('')
+  let paperSummaryPromptLoading = $state(true)
+  let paperSummaryPromptSaving  = $state(false)
+
+  async function loadPaperSummaryPrompt() {
+    paperSummaryPromptLoading = true
+    try {
+      const res = await adminPromptsApi.getPaperSummaryPrompt()
+      paperSummaryPrompt = res.prompt_text ?? ''
+    } catch (err) {
+      if (err instanceof ApiError && err.status >= 500) {
+        toast.error('Failed to load the paper-summary prompt. Please try again.')
+      }
+      // 403 — just don't render; handled in template
+    } finally {
+      paperSummaryPromptLoading = false
+    }
+  }
+
+  $effect(() => {
+    if ($isAdmin) loadPaperSummaryPrompt()
+  })
+
+  async function savePaperSummaryPrompt() {
+    if (!paperSummaryPrompt.trim()) return
+    paperSummaryPromptSaving = true
+    try {
+      await adminPromptsApi.setPaperSummaryPrompt(paperSummaryPrompt.trim())
+      toast.success("Prompt updated — used for all users' next summary generation.")
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 403) {
+        toast.error("You don't have permission to do this.")
+      } else {
+        toast.error(err instanceof ApiError ? err.message : 'Failed to save the prompt. Please try again.')
+      }
+    } finally {
+      paperSummaryPromptSaving = false
+    }
+  }
 
   function formatCost(usd: number): string {
     if (usd === 0) return '$0.00'
@@ -493,6 +535,33 @@
     {/if}
   </div>
 
+  <!-- Admin: Paper Summary Prompt -->
+  {#if $isAdmin}
+    <div class="card">
+      <h2 class="section-title">Paper Summary Prompt</h2>
+      <p class="storage-hint">This prompt applies to every user's AI summaries, not just yours.</p>
+      {#if paperSummaryPromptLoading}
+        <div class="skeleton" style="height: 120px; margin-top: 12px;"></div>
+      {:else}
+        <textarea
+          class="prompt-textarea"
+          bind:value={paperSummaryPrompt}
+          rows={8}
+          placeholder="No prompt configured yet — paper summaries won't work until you set one."
+        ></textarea>
+        <div class="prompt-actions">
+          <button
+            class="action-btn primary"
+            onclick={savePaperSummaryPrompt}
+            disabled={!paperSummaryPrompt.trim() || paperSummaryPromptSaving}
+          >
+            {paperSummaryPromptSaving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      {/if}
+    </div>
+  {/if}
+
   <!-- Admin: All Users Storage -->
   {#if $isAdmin}
     <div class="card">
@@ -804,4 +873,13 @@
   .sort-indicator { color: var(--color-primary); }
 
   .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
+
+  .prompt-textarea {
+    width: 100%; box-sizing: border-box; margin-top: 12px; padding: 10px 12px;
+    border-radius: 8px; resize: vertical; min-height: 120px;
+    border: 1px solid var(--color-surface-3); background: var(--color-surface-1);
+    color: var(--color-text-primary); font-size: 0.875rem; font-family: inherit; outline: none;
+  }
+  .prompt-textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
+  .prompt-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
 </style>

@@ -13,12 +13,16 @@
   import FileUpload from '$lib/components/forms/FileUpload.svelte'
   import FormField from '$lib/components/forms/FormField.svelte'
   import AddToProjectModal from '$lib/components/projects/AddToProjectModal.svelte'
+  import SectionError from '$lib/components/data/SectionError.svelte'
   import CopyCitation from '$lib/components/references/CopyCitation.svelte'
   import BibExportMenu from '$lib/components/references/BibExportMenu.svelte'
-  import { formatDate, formatBytes, formatDoi } from '$lib/utils/format'
+  import SummarizeWithAiDialog from '$lib/components/references/SummarizeWithAiDialog.svelte'
+  import { formatDate, formatBytes, formatDoi, formatRelativeTime } from '$lib/utils/format'
+  import { stripMarkdown } from '$lib/utils/markdown'
   import { tagChipStyle } from '$lib/utils/tag-color'
-  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2, Link, Star, Link2, X } from 'lucide-svelte'
+  import { Pencil, Users, Plus, ExternalLink, Download, FileText, Trash2, Eye, FolderOpen, FileCheck, Maximize2, Minimize2, Link, Star, Link2, X, Sparkles } from 'lucide-svelte'
   import type { Attachment, Reference } from '$lib/types/reference'
+  import type { NotebookPost } from '$lib/types/notebook'
 
   let { data }: { data: PageData } = $props()
   let reference = $derived(data.reference)
@@ -142,6 +146,41 @@
 
   const activeNotes       = $derived((reference.notes ?? []).filter(n => !n.deleted))
   const activeAttachments = $derived(reference.attachments.filter(a => !a.deleted))
+
+  // ── AI paper summary → notebook post ─────────────────────────────────────
+  const hasPdfAttachment = $derived(activeAttachments.some(a => a.content_type === 'application/pdf'))
+  let summarizeDisabledThisSession = $state(false)
+  const canSummarize = $derived(hasPdfAttachment && !summarizeDisabledThisSession)
+
+  let summarizeOpen       = $state(false)
+  let relatedPosts        = $state<NotebookPost[]>([])
+  let relatedPostsLoading = $state(true)
+  let relatedPostsError   = $state(false)
+  let showAllPosts        = $state(false)
+  const POSTS_CAP = 5
+
+  const visiblePosts = $derived(showAllPosts ? relatedPosts : relatedPosts.slice(0, POSTS_CAP))
+
+  async function loadRelatedPosts() {
+    relatedPostsLoading = true
+    relatedPostsError = false
+    try {
+      relatedPosts = await referencesApi.listPosts(reference.id)
+    } catch {
+      relatedPostsError = true
+    } finally {
+      relatedPostsLoading = false
+    }
+  }
+
+  $effect(() => {
+    void reference.id
+    loadRelatedPosts()
+  })
+
+  function onSummaryCreated(post: NotebookPost) {
+    relatedPosts = [post, ...relatedPosts]
+  }
 
   async function viewPdf(attach: Attachment) {
     loadingPdfId = attach.id
@@ -268,6 +307,11 @@
       {/if}
     </div>
     <div class="header-actions">
+      {#if canSummarize}
+        <Button variant="outlined" size="sm" onclick={() => summarizeOpen = true}>
+          <Sparkles size={20} /><span class="btn-label"> Summarize with AI</span>
+        </Button>
+      {/if}
       <Button variant="outlined" size="sm" onclick={() => showAddToProject = true}>
         <FolderOpen size={20} /><span class="btn-label"> Add to Project</span>
       </Button>
@@ -531,6 +575,43 @@
           </ul>
         {/if}
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Posts about this paper</h2>
+        </div>
+        {#if relatedPostsLoading}
+          <p class="empty-msg">Loading…</p>
+        {:else if relatedPostsError}
+          <SectionError label="Related posts" message="Could not load related posts." onretry={loadRelatedPosts} />
+        {:else if relatedPosts.length === 0}
+          <p class="empty-msg">No posts reference this paper yet.</p>
+          <p class="empty-hint">Posts you create manually that include this paper will show up here too.</p>
+          {#if canSummarize}
+            <Button variant="tonal" size="sm" onclick={() => summarizeOpen = true}>
+              <Sparkles size={18} /> Summarize with AI
+            </Button>
+          {/if}
+        {:else}
+          <ul class="attach-list">
+            {#each visiblePosts as post (post.id)}
+              <li class="attach-item">
+                <FileText size={20} />
+                <div class="attach-info">
+                  <a href="/notebooks/{post.notebook_id}/posts/{post.id}" class="attach-name">{post.title}</a>
+                  <span class="post-preview">{stripMarkdown(post.content, 140)}</span>
+                  <span class="attach-size">{formatRelativeTime(post.created_at)}</span>
+                </div>
+              </li>
+            {/each}
+          </ul>
+          {#if relatedPosts.length > POSTS_CAP && !showAllPosts}
+            <button class="show-more-btn" onclick={() => showAllPosts = true}>
+              Show {relatedPosts.length - POSTS_CAP} more
+            </button>
+          {/if}
+        {/if}
+      </div>
     </div>
 
     <!-- Right column: PDF viewer -->
@@ -618,6 +699,14 @@
   entityType="PAPER"
   entityId={reference.id}
   onclose={() => showAddToProject = false}
+/>
+
+<SummarizeWithAiDialog
+  open={summarizeOpen}
+  referenceId={reference.id}
+  onclose={() => summarizeOpen = false}
+  onsuccess={onSummaryCreated}
+  ondisable={() => summarizeDisabledThisSession = true}
 />
 
 <DestructiveConfirmDialog
@@ -776,6 +865,18 @@
   .note-form :global(input:focus) { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-subtle); }
 
   .empty-msg { font-size: 0.875rem; color: var(--color-text-secondary); margin: 0; }
+  .empty-hint { font-size: 0.75rem; color: var(--color-text-disabled); margin: 4px 0 12px; }
+
+  .post-preview {
+    font-size: 0.75rem; color: var(--color-text-secondary); display: block;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 2px 0;
+  }
+
+  .show-more-btn {
+    margin-top: 10px; padding: 6px 0; border: none; background: transparent;
+    color: var(--color-primary); cursor: pointer; font-size: 0.8125rem; font-family: inherit;
+  }
+  .show-more-btn:hover { text-decoration: underline; }
 
   .attach-header-actions { display: flex; align-items: center; gap: 4px; }
 
