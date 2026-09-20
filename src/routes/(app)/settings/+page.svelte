@@ -1,12 +1,15 @@
 <script lang="ts">
+  import { goto } from '$app/navigation'
   import { theme, toggleTheme } from '$lib/stores/ui'
-  import { currentUser, currentEmail, isAdmin } from '$lib/stores/auth'
+  import { authStore, currentUser, currentEmail, isAdmin } from '$lib/stores/auth'
   import { authApi } from '$lib/api/auth'
   import { costsApi } from '$lib/api/costs'
   import { ApiError } from '$lib/api/client'
   import { toast } from '$lib/stores/toast'
-  import { Sun, Moon, RefreshCw } from 'lucide-svelte'
+  import { Sun, Moon, RefreshCw, LogOut } from 'lucide-svelte'
   import type { StorageCost } from '$lib/types/costs'
+
+  function logout() { authStore.clear(); goto('/') }
 
   // 'idle' | 'sending' | 'token' | 'success'
   type PwStep = 'idle' | 'sending' | 'token' | 'success'
@@ -263,6 +266,18 @@
         </div>
       </div>
     {/if}
+
+    <div class="divider"></div>
+    <div class="setting-row">
+      <div>
+        <span class="label">Session</span>
+        <span class="hint">Sign out of your account on this device</span>
+      </div>
+      <button class="action-btn danger" onclick={logout}>
+        <LogOut size={14} />
+        Log out
+      </button>
+    </div>
   </div>
 
   <div class="card">
@@ -423,6 +438,8 @@
     background: var(--color-primary); color: #fff; border-color: var(--color-primary);
   }
   .action-btn.primary:hover:not(:disabled) { opacity: 0.9; background: var(--color-primary); }
+  .action-btn.danger { color: var(--color-error); border-color: var(--color-error); }
+  .action-btn.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--color-error) 10%, transparent); }
 
   .cancel-btn {
     background: none; border: none; cursor: pointer; font-size: 0.8125rem;
