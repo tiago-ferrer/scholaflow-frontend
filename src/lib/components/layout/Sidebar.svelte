@@ -2,7 +2,7 @@
   import { page } from '$app/stores'
   import { onMount } from 'svelte'
   import { sidebarCollapsed, sidebarAutoHide, toggleSidebar, sidebarMobileOpen, closeMobileSidebar } from '$lib/stores/ui'
-  import { currentUser } from '$lib/stores/auth'
+  import { currentUser, isAdmin } from '$lib/stores/auth'
   import { NAV_SECTIONS } from '$lib/config/navigation'
   import { transcriptionGroups, refreshTranscriptionGroups } from '$lib/stores/transcriptionGroups'
   import { notebooks, refreshNotebooks } from '$lib/stores/notebooks'
@@ -37,7 +37,7 @@
   let projectsExpanded = $state(false)
   let ganttExpanded = $state(false)
   let excalidrawExpanded = $state(false)
-  let mcpApiKeysExpanded = $state(false)
+  let expandedSubmenus = $state<Set<string>>(new Set())
 
   // Close mobile sidebar on navigation
   $effect(() => { $page.url.pathname; closeMobileSidebar() })
@@ -68,8 +68,11 @@
     excalidrawExpanded = !excalidrawExpanded
   }
 
-  function toggleMcpApiKeys() {
-    mcpApiKeysExpanded = !mcpApiKeysExpanded
+  function toggleSubmenu(href: string) {
+    const next = new Set(expandedSubmenus)
+    if (next.has(href)) next.delete(href)
+    else next.add(href)
+    expandedSubmenus = next
   }
 </script>
 
@@ -115,6 +118,7 @@
         <p class="section-label">{section.title}</p>
       {/if}
       {#each section.items as item}
+        {#if !item.adminOnly || $isAdmin}
         {@const active = activeHref.startsWith(item.href)}
         <div class="nav-item-wrapper" class:has-submenu={item.href === '/notebooks' || item.href === '/transcription' || item.href === '/kanban' || item.href === '/projects' || item.href === '/gantt' || item.href === '/excalidraw' || item.submenu}>
           <a
@@ -195,17 +199,15 @@
           {#if item.submenu && !collapsed}
             <button
               class="submenu-toggle"
-              onclick={() => {
-                if (item.href === '/mcp') toggleMcpApiKeys()
-              }}
-              aria-label={item.href === '/mcp' && mcpApiKeysExpanded ? 'Collapse' : 'Expand'}
-              title={item.href === '/mcp' && mcpApiKeysExpanded ? 'Collapse' : 'Expand'}
+              onclick={() => toggleSubmenu(item.href)}
+              aria-label={expandedSubmenus.has(item.href) ? 'Collapse' : 'Expand'}
+              title={expandedSubmenus.has(item.href) ? 'Collapse' : 'Expand'}
             >
-              <ChevronRight size={18} class={item.href === '/mcp' && mcpApiKeysExpanded ? 'rotated' : ''} />
+              <ChevronRight size={18} class={expandedSubmenus.has(item.href) ? 'rotated' : ''} />
             </button>
           {/if}
         </div>
-        {#if item.submenu && !collapsed && item.href === '/mcp' && mcpApiKeysExpanded}
+        {#if item.submenu && !collapsed && expandedSubmenus.has(item.href)}
           {#each item.submenu as subitem}
             {@const subitemActive = activeHref.startsWith(subitem.href)}
             <a
@@ -322,6 +324,7 @@
             <Plus size={14} />
             <span>New notebook</span>
           </a>
+        {/if}
         {/if}
       {/each}
     {/each}
