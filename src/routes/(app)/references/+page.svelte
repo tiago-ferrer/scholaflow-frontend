@@ -539,57 +539,59 @@
                   {#if col('role')}<td><StatusChip label={reference.role} variant={reference.role === 'OWNER' ? 'info' : 'neutral'} /></td>{/if}
                   {#if col('updated')}<td class="date-cell">{formatDate(reference.updated_at)}</td>{/if}
                   <td class="actions-cell">
-                    <button class="icon-btn" title="View" onclick={() => goto(`/references/${reference.id}`)}>
-                      <Eye size={20} />
-                    </button>
-                    <BibExportMenu references={[reference]} filenameBase={reference.citation_key ?? reference.title} />
-                    {#if reference.role === 'OWNER'}
-                      <button class="icon-btn" title="Edit" onclick={() => goto(`/references/${reference.id}/edit`)}>
-                        <Pencil size={20} />
+                    <div class="actions-inner">
+                      <button class="icon-btn" title="View" onclick={() => goto(`/references/${reference.id}`)}>
+                        <Eye size={20} />
                       </button>
-                      <button class="icon-btn" title="Viewers" onclick={() => goto(`/references/${reference.id}/viewers`)}>
-                        <Users size={20} />
-                      </button>
-
-                      <!-- Folder assign -->
-                      <div class="folder-pick-wrap">
-                        <button
-                          class="icon-btn"
-                          title="Assign to folder"
-                          onclick={(e) => { e.stopPropagation(); folderPickerId = folderPickerId === reference.id ? null : reference.id }}
-                        >
-                          <FolderOpen size={20} />
+                      <BibExportMenu references={[reference]} filenameBase={reference.citation_key ?? reference.title} />
+                      {#if reference.role === 'OWNER'}
+                        <button class="icon-btn" title="Edit" onclick={() => goto(`/references/${reference.id}/edit`)}>
+                          <Pencil size={20} />
                         </button>
-                        {#if folderPickerId === reference.id}
-                          <div class="folder-picker">
-                            <button class="fp-item fp-unfiled" onclick={() => assignFolder(reference.id, null)}>
-                              Unfiled
-                            </button>
-                            {#each folders.flatten() as { folder, depth }}
-                              <button
-                                class="fp-item"
-                                class:fp-active={reference.folder_id === folder.id}
-                                style="padding-left: {10 + depth * 12}px"
-                                onclick={() => assignFolder(reference.id, folder.id)}
-                              >
-                                {folder.name}
-                              </button>
-                            {/each}
-                          </div>
-                        {/if}
-                      </div>
+                        <button class="icon-btn" title="Viewers" onclick={() => goto(`/references/${reference.id}/viewers`)}>
+                          <Users size={20} />
+                        </button>
 
-                      <!-- Remove from folder (only shown when browsing a folder) -->
-                      {#if data.folderId && data.folderId !== 'unfiled' && reference.folder_id === data.folderId}
-                        <button class="icon-btn" title="Remove from folder" onclick={() => removeFromFolder(reference.id)}>
-                          <FolderX size={20} />
+                        <!-- Folder assign -->
+                        <div class="folder-pick-wrap">
+                          <button
+                            class="icon-btn"
+                            title="Assign to folder"
+                            onclick={(e) => { e.stopPropagation(); folderPickerId = folderPickerId === reference.id ? null : reference.id }}
+                          >
+                            <FolderOpen size={20} />
+                          </button>
+                          {#if folderPickerId === reference.id}
+                            <div class="folder-picker">
+                              <button class="fp-item fp-unfiled" onclick={() => assignFolder(reference.id, null)}>
+                                Unfiled
+                              </button>
+                              {#each folders.flatten() as { folder, depth }}
+                                <button
+                                  class="fp-item"
+                                  class:fp-active={reference.folder_id === folder.id}
+                                  style="padding-left: {10 + depth * 12}px"
+                                  onclick={() => assignFolder(reference.id, folder.id)}
+                                >
+                                  {folder.name}
+                                </button>
+                              {/each}
+                            </div>
+                          {/if}
+                        </div>
+
+                        <!-- Remove from folder (only shown when browsing a folder) -->
+                        {#if data.folderId && data.folderId !== 'unfiled' && reference.folder_id === data.folderId}
+                          <button class="icon-btn" title="Remove from folder" onclick={() => removeFromFolder(reference.id)}>
+                            <FolderX size={20} />
+                          </button>
+                        {/if}
+
+                        <button class="icon-btn danger" title="Delete" onclick={() => deleteTarget = reference}>
+                          <Trash2 size={20} />
                         </button>
                       {/if}
-
-                      <button class="icon-btn danger" title="Delete" onclick={() => deleteTarget = reference}>
-                        <Trash2 size={20} />
-                      </button>
-                    {/if}
+                    </div>
                   </td>
                 </tr>
               {/each}
@@ -854,7 +856,8 @@
   .paper-link:hover { color: var(--color-primary); }
   .paper-link.unread { font-weight: 700; }
   .actions-col { width: 1%; }
-  .actions-cell { display: flex; align-items: center; justify-content: center; gap: 2px; }
+  .actions-cell { white-space: nowrap; }
+  .actions-inner { display: flex; align-items: center; justify-content: center; gap: 2px; }
 
   .star-col { width: 1%; }
   .star-btn { color: var(--color-text-disabled); }
