@@ -1,5 +1,5 @@
 import { get } from 'svelte/store'
-import { api, makeApi, ApiError } from './client'
+import { api, makeApi, ApiError, readSseStream } from './client'
 import { authStore } from '$lib/stores/auth'
 import type { Reference, CreateReferencePayload, PatchReferencePayload, PageResult, BibImportJob, ReferenceSearchResult, DuplicateGroup, AuthorUsage, MergeAuthorsResult } from '$lib/types/reference'
 import type { Viewer } from '$lib/types/viewer'
@@ -81,11 +81,45 @@ export function makeReferencesApi(fetchFn?: typeof fetch) {
     addLinkAttachment: (id: string, url: string, label?: string) =>
       a.post<Reference>(`${BASE}/${id}/attachments/link`, { url, label: label || null }),
 
-    // AI paper summary — generates and saves a notebook post from the paper's PDF. Synchronous
-    // and can take 5-20s (calls OpenAI server-side). No idempotency protection: a duplicate
-    // call creates a duplicate post, so callers must disable the trigger while in flight.
-    summarizePost: (id: string, notebookId: string) =>
-      a.post<NotebookPost>(`${BASE}/${id}/summarize-post`, { notebook_id: notebookId }),
+    // AI paper summary — generates and saves a notebook post from the paper's PDF, streamed as
+    // Server-Sent Events (`delta` chunks of generated text, then one `done` with the saved
+    // post). Pre-flight validation (paper access, notebook ownership, PDF presence/size, prompt
+    // configured) still fails as a plain JSON error before the stream opens. No idempotency
+    // protection: a duplicate call creates a duplicate post, so callers must disable the
+    // trigger while in flight. Raw fetch, not makeApi() (which only handles JSON responses).
+    streamSummarizePost: async (
+      id: string,
+      notebookId: string,
+      onDelta: (chunk: string) => void,
+    ): Promise<NotebookPost> => {
+      const auth = get(authStore)
+      const res = await fetch(`${BASE_URL}${BASE}/${id}/summarize-post`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+        },
+        body: JSON.stringify({ notebook_id: notebookId }),
+      })
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        let body: Record<string, unknown> = {}
+        try { body = JSON.parse(text) } catch { /* not json */ }
+        throw new ApiError(res.status, String(body.error ?? 'UNKNOWN'), String(body.message ?? (text || 'Request failed')))
+      }
+
+      let finalPost: NotebookPost | null = null
+      await readSseStream(res, (eventName, data) => {
+        if (eventName === 'delta') onDelta(data)
+        else if (eventName === 'done') finalPost = JSON.parse(data) as NotebookPost
+      })
+
+      if (!finalPost) {
+        throw new ApiError(0, 'STREAM_INCOMPLETE', "Couldn't generate the summary, try again.")
+      }
+      return finalPost
+    },
 
     // The caller's own notebook posts that reference this paper (not "who can see this paper").
     // Soft-deleted posts excluded. Returns [] for a paper the caller can't see — never 404s.

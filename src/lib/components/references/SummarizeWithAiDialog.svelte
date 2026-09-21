@@ -29,6 +29,8 @@
   let query            = $state('')
   let selectedId       = $state<string | null>(null)
   let generating       = $state(false)
+  let streamedText     = $state('')
+  let streamOutputEl    = $state<HTMLDivElement | null>(null)
 
   const filteredNotebooks = $derived.by(() => {
     const q = query.trim().toLowerCase()
@@ -38,6 +40,11 @@
 
   $effect(() => {
     if (open) loadNotebooks(0)
+  })
+
+  $effect(() => {
+    streamedText
+    if (streamOutputEl) streamOutputEl.scrollTop = streamOutputEl.scrollHeight
   })
 
   async function loadNotebooks(page: number) {
@@ -60,6 +67,7 @@
     notebooksHasMore = false
     query = ''
     selectedId = null
+    streamedText = ''
   }
 
   function handleClose() {
@@ -71,8 +79,11 @@
   async function confirm() {
     if (!selectedId || generating) return
     generating = true
+    streamedText = ''
     try {
-      const post = await referencesApi.summarizePost(referenceId, selectedId)
+      const post = await referencesApi.streamSummarizePost(referenceId, selectedId, (chunk) => {
+        streamedText += chunk
+      })
       const notebookTitle = notebooks.find(n => n.id === selectedId)?.title ?? 'the notebook'
       toast.success(`Summary added to ${notebookTitle}`, {
         action: { label: 'View', onClick: () => goto(`/notebooks/${post.notebook_id}/posts/${post.id}`) },
@@ -98,6 +109,8 @@
       } else if (e instanceof ApiError && e.status === 404) {
         toast.error('That notebook is no longer available — pick another.')
         selectedId = null
+      } else if (e instanceof ApiError && e.code === 'STREAM_INCOMPLETE') {
+        toast.error(e.message)
       } else if (e instanceof ApiError && e.status >= 500) {
         toast.error("Couldn't generate the summary, try again.")
       } else {
@@ -120,8 +133,8 @@
       <div class="modal-body">
         {#if generating}
           <div class="generating-state">
-            <Spinner size={28} />
-            <p>Generating summary… this can take up to 20 seconds.</p>
+            <p class="generating-label"><Spinner size={16} /> Generating…</p>
+            <div class="stream-output" bind:this={streamOutputEl}>{streamedText || '…'}</div>
           </div>
         {:else}
           <p class="hint">Choose a notebook — the AI will generate the title and content from the paper's PDF.</p>
@@ -226,10 +239,18 @@
   .empty-msg { font-size: 0.8125rem; color: var(--color-text-secondary); margin: 0; padding: 8px; }
 
   .generating-state {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 14px; padding: 32px 16px; color: var(--color-text-secondary);
+    display: flex; flex-direction: column; gap: 10px; padding: 4px 0;
   }
-  .generating-state p { margin: 0; font-size: 0.875rem; text-align: center; }
+  .generating-label {
+    display: flex; align-items: center; gap: 8px; margin: 0;
+    font-size: 0.8125rem; color: var(--color-text-secondary);
+  }
+  .stream-output {
+    white-space: pre-wrap; overflow-y: auto; max-height: 240px;
+    padding: 12px; border-radius: 8px; border: 1px solid var(--color-surface-3);
+    background: var(--color-surface-1); color: var(--color-text-primary);
+    font-size: 0.8125rem; line-height: 1.5;
+  }
 
   .modal-footer {
     display: flex; justify-content: flex-end; gap: 8px;

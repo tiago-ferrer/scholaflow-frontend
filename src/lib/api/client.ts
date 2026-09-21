@@ -73,3 +73,40 @@ export function makeApi(fetchFn: typeof fetch = globalThis.fetch) {
 }
 
 export const api = makeApi()
+
+/**
+ * Reads a `text/event-stream` response body, calling `onEvent` once per SSE event with its
+ * `event:` name (empty string if the event had no name) and its joined `data:` payload.
+ * Call this only after confirming `response.ok` — it does not do JSON error handling.
+ */
+export async function readSseStream(
+  response: Response,
+  onEvent: (eventName: string, data: string) => void,
+): Promise<void> {
+  const reader = response.body?.getReader()
+  if (!reader) return
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  const processFrame = (frame: string) => {
+    let eventName = ''
+    const dataLines: string[] = []
+    for (const line of frame.split('\n')) {
+      if (line.startsWith('event:')) eventName = line.slice('event:'.length)
+      else if (line.startsWith('data:')) dataLines.push(line.slice('data:'.length))
+    }
+    if (dataLines.length > 0) onEvent(eventName, dataLines.join('\n'))
+  }
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    let sep: number
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      processFrame(buffer.slice(0, sep))
+      buffer = buffer.slice(sep + 2)
+    }
+  }
+  if (buffer.trim()) processFrame(buffer)
+}
